@@ -19,6 +19,13 @@
     }
   },
   "scripts": {
-    "test": "pest"
+    "test": "pest",
+    "dev": "php -S localhost:8000 -t public"
+  },
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    },
+    "process-timeout": 0
   }
 }
