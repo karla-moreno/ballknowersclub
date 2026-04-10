@@ -18,3 +18,8 @@ composer.lock
 *.log
 /tmp/
 /cache/
+
+# development
+*.local.*
+/storage
+*.sqlite
