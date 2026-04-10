@@ -2,7 +2,8 @@
   "name": "dev/php-playground",
   "type": "project",
   "require": {
-    "php": ">=8.4"
+    "php": ">=8.4",
+    "ext-pdo": "*"
   },
   "require-dev": {
     "pestphp/pest": "^3.0",
