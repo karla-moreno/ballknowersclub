@@ -8,6 +8,7 @@
 	use App\Models\User;
 	use App\Auth\Auth;
 	use App\Helpers\BallKnower;
+	use App\Services\NbaApiService;
 
 	$title = 'Index';
 	ob_start();
@@ -17,7 +18,7 @@
 	$user_email = htmlspecialchars($user->getEmail(), ENT_QUOTES, 'UTF-8');
 	dump(Auth::user());
 	dump($_SESSION);
-	dump(balldontlie_get('/nba/v1/teams'));
+	dump(NbaApiService::getTeams());
 ?>
 
 	<h1>Welcome to Skins 2026-2027</h1>
