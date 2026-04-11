@@ -1,7 +1,11 @@
 .section {
-    margin-bottom: var(--space-8);
+    margin-bottom: var(--space-6);
 }
 
 .bg-danger {
     background: color-mix(in srgb, var(--danger), transparent 90%);
+}
+
+table {
+    font-size: 18px;
 }
