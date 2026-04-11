@@ -1,6 +1,7 @@
 <?php
 	declare(strict_types=1);
 	require_once __DIR__ . '/../vendor/autoload.php';
+	require_once '../src/Services/NbaApiService.php';
 
 	use App\Enums\NBATeam;
 	use Symfony\Component\VarDumper\VarDumper;
@@ -16,6 +17,7 @@
 	$user_email = htmlspecialchars($user->getEmail(), ENT_QUOTES, 'UTF-8');
 	dump(Auth::user());
 	dump($_SESSION);
+	dump(balldontlie_get('/nba/v1/teams'));
 ?>
 
 	<h1>Welcome to Skins 2026-2027</h1>
