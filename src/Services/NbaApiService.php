@@ -5,6 +5,7 @@
 
 	require_once __DIR__ . '/../../vendor/autoload.php';
 
+	use App\Database\Database;
 	use Dotenv\Dotenv;
 
 	$dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
@@ -68,6 +69,33 @@
 			$PATH = __DIR__ . '/../../temp/nba-temp-initial-raw.json';
 			$response = file_get_contents($PATH, true, null);
 			return json_decode($response, true);
+		}
+
+		public static function createTeamsTable(): void {
+			$db = Database::connection();
+			$db->exec("
+				CREATE TABLE IF NOT EXISTS teams (
+			    id INTEGER PRIMARY KEY AUTOINCREMENT,
+			    team_id BIGINT UNSIGNED NOT NULL UNIQUE,
+			    name TEXT NOT NULL,
+			    slug TEXT NOT NULL UNIQUE
+				)
+			");
+		}
+
+		public static function createTeamRecordsTable(): void {
+			$db = Database::connection();
+			$db->exec("
+				CREATE TABLE IF NOT EXISTS team_records (
+			    id INTEGER PRIMARY KEY AUTOINCREMENT,
+			    team_id BIGINT UNSIGNED NOT NULL,
+			    season VARCHAR(10) NOT NULL,
+			    wins INTEGER NOT NULL,
+			    losses INTEGER NOT NULL,
+			    UNIQUE(team_id, season),
+			    FOREIGN KEY (team_id) REFERENCES teams(team_id)
+				)
+			");
 		}
 
 		public function saveTeamById(string $teamName): void {}
