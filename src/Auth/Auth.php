@@ -15,11 +15,11 @@
 			}
 		}
 
-		public static function login(string $email, string $password): bool
+		public static function login(string $username, string $password): bool
 		{
 			$db = Database::connection();
-			$stmt = $db->prepare('SELECT * FROM users WHERE email = :email LIMIT 1');
-			$stmt->execute([':email' => $email]);
+			$stmt = $db->prepare('SELECT * FROM users WHERE username = :username LIMIT 1');
+			$stmt->execute([':username' => $username]);
 			$row = $stmt->fetch();
 
 			if (!$row || !password_verify($password, $row['password'])) {
@@ -30,7 +30,6 @@
 				'id' => $row['id'],
 				'name' => $row['name'],
 				'username' => $row['username'],
-				'email' => $row['email'],
 				'role' => $row['role'],
 			];
 

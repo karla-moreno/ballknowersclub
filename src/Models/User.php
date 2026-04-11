@@ -10,7 +10,6 @@
 		public function __construct(
 			private string  $name,
 			private string  $username,
-			private string  $email,
 			private ?string $password = null,
 			private ?int    $id = null,
 		) {}
@@ -23,11 +22,6 @@
 		public function getUsername(): string
 		{
 			return $this->username;
-		}
-
-		public function getEmail(): string
-		{
-			return $this->email;
 		}
 
 		public function getId(): ?int
@@ -45,12 +39,11 @@
 			$db = Database::connection();
 
 			$stmt = $db->prepare("
-				INSERT INTO users (name, username, email, password, role) VALUES (:name, :username, :email, :password, :role)
+				INSERT INTO users (name, username, password, role) VALUES (:name, :username, :password, :role)
 			");
 			$stmt->execute([
 				               ':name' => $this->name,
 				               ':username' => $this->username,
-				               ':email' => $this->email,
 				               ':password' => $this->password,
 				               ':role' => 'user'
 			               ]);
@@ -78,7 +71,7 @@
 
 			if (!$row) return null;
 
-			$user = new self($row['name'], $row['username'], $row['email'], $row['password'], $row['id']);
+			$user = new self($row['name'], $row['username'], $row['password'], $row['id']);
 			return $user;
 		}
 
@@ -96,7 +89,6 @@
 			    id INTEGER PRIMARY KEY AUTOINCREMENT,
 			    name TEXT NOT NULL,
 			    username TEXT NOT NULL UNIQUE,
-			    email TEXT NOT NULL UNIQUE,
 			    password TEXT NOT NULL,
        		role TEXT NOT NULL DEFAULT 'user'
 				)

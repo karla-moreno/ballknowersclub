@@ -12,6 +12,6 @@
 		expect($this->user->getName())->toBe('Alice');
 	});
 
-	it('has an email', function () {
-		expect($this->user->getEmail())->toBe('alice@umbrellacorp.net');
+	it('has a username', function () {
+		expect($this->user->getUsername())->toBe('zombiekilla');
 	});

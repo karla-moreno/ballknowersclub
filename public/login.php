@@ -11,15 +11,15 @@
 	$error = null;
 
 	if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-		$email = trim($_POST['email'] ?? '');
+		$username = trim($_POST['username'] ?? '');
 		$password = $_POST['password'] ?? '';
 
-		if (Auth::login($email, $password)) {
+		if (Auth::login($username, $password)) {
 			header('Location: /');
 			exit;
 		}
 
-		$error = 'Invalid email or password.';
+		$error = 'Invalid username or password.';
 	}
 	$title = 'Login';
 	ob_start();
@@ -34,8 +34,8 @@
 		<div class="mt-4">
 			<form method="POST">
 				<label>
-					Email
-					<input type="email" name="email" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
+					Username
+					<input type="text" name="username" value="<?= htmlspecialchars($_POST['username'] ?? '') ?>">
 				</label>
 				<br>
 				<label>
