@@ -4,12 +4,14 @@
 
 	use App\Models\User;
 
+	beforeEach(function () {
+		$this->user = new User('Alice', 'zombiekilla', 'alice@umbrellacorp.net');
+	});
+
 	it('has a name', function () {
-		$user = new User('Alice', 'alice@umbrellacorp.net');
-		expect($user->getName())->toBe('Alice');
+		expect($this->user->getName())->toBe('Alice');
 	});
 
 	it('has an email', function () {
-		$user = new User('Alice', 'alice@umbrellacorp.net');
-		expect($user->getEmail())->toBe('alice@umbrellacorp.net');
+		expect($this->user->getEmail())->toBe('alice@umbrellacorp.net');
 	});
