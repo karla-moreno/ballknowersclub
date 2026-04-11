@@ -14,28 +14,23 @@
 			private ?int    $id = null,
 		) {}
 
-		public function getName(): string
-		{
+		public function getName(): string {
 			return $this->name;
 		}
 
-		public function getUsername(): string
-		{
+		public function getUsername(): string {
 			return $this->username;
 		}
 
-		public function getId(): ?int
-		{
+		public function getId(): ?int {
 			return $this->id;
 		}
 
-		public function setPassword(string $plaintext): void
-		{
+		public function setPassword(string $plaintext): void {
 			$this->password = password_hash($plaintext, PASSWORD_BCRYPT);
 		}
 
-		public function save(): void
-		{
+		public function save(): void {
 			$db = Database::connection();
 
 			$stmt = $db->prepare("
@@ -51,8 +46,7 @@
 			$this->id = (int)$db->lastInsertId();
 		}
 
-		public function delete(): void
-		{
+		public function delete(): void {
 			if ($this->id === null) {
 				throw new \RuntimeException("Cannot delete a user without an ID.");
 			}
@@ -62,8 +56,7 @@
 			$stmt->execute([':id' => $this->id]);
 		}
 
-		public static function findById(int $id): ?self
-		{
+		public static function findById(int $id): ?self {
 			$db = Database::connection();
 			$stmt = $db->prepare("SELECT * FROM users WHERE id = :id");
 			$stmt->execute([':id' => $id]);
@@ -75,14 +68,12 @@
 			return $user;
 		}
 
-		public static function all(): array
-		{
+		public static function all(): array {
 			$db = Database::connection();
 			return $db->query("SELECT * FROM users")->fetchAll();
 		}
 
-		public static function createTable(): void
-		{
+		public static function createTable(): void {
 			$db = Database::connection();
 			$db->exec("
 				CREATE TABLE IF NOT EXISTS users (
