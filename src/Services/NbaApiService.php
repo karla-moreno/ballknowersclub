@@ -6,6 +6,7 @@
 	require_once __DIR__ . '/../../vendor/autoload.php';
 
 	use App\Database\Database;
+	use App\Enums\Season;
 	use Dotenv\Dotenv;
 
 	$dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
@@ -71,6 +72,67 @@
 			return json_decode($response, true);
 		}
 
+		public function seedTeams(): void {
+			self::createTeamsTable();
+			$data = self::getRawSeasonStandingsFromTempData();
+			$rows = $data['resultSets'][0]['rowSet'];
+			$db = Database::connection();
+			$db->beginTransaction();
+			$stmt = $db->prepare("INSERT INTO teams (team_id, name, slug) VALUES (:team_id, :name, :slug)");
+			foreach ($rows as $row) {
+				$stmt->execute([
+					               ':team_id' => $row[2],
+					               ':name' => $row[3] . ' ' . $row[4],
+					               ':slug' => $row[5],
+				               ]);
+			}
+			$db->commit();
+		}
+
+		public function seedRecords(): void {
+			self::createTeamRecordsTable();
+			$data = self::getRawSeasonStandingsFromTempData();
+			$rows = $data['resultSets'][0]['rowSet'];
+			$db = Database::connection();
+			$db->beginTransaction();
+			$db->exec("DELETE FROM team_records WHERE *");
+			$stmt = $db->prepare("INSERT INTO team_records (team_id, season, wins, losses) VALUES (:team_id, :season, :wins, :losses)");
+			foreach ($rows as $row) {
+				$stmt->execute([
+					               ':team_id' => $row[2],
+					               ':season' => Season::S25_26->value,
+					               ':wins' => $row[13],
+					               ':losses' => $row[14]
+				               ]);
+			}
+			$db->commit();
+		}
+
+		public static function allTeams(): array {
+			$db = Database::connection();
+			return $db->query("SELECT * FROM teams ORDER BY name ASC")->fetchAll();
+		}
+
+		public static function allTeamRecords(Season $season): array {
+			$db = Database::connection();
+			$stmt = $db->prepare("SELECT * FROM team_records WHERE season = :season ORDER BY wins DESC");
+			$stmt->execute([':season' => $season->value]);
+			return $stmt->fetchAll();
+		}
+
+		public static function allTeamRecordsWithNames(Season $season): array {
+			$db = Database::connection();
+			$stmt = $db->prepare("
+        SELECT record.*, team.name
+        FROM team_records record
+        JOIN teams team ON team.team_id = record.team_id
+        WHERE record.season = :season
+        ORDER BY record.wins DESC
+    ");
+			$stmt->execute([':season' => $season->value]);
+			return $stmt->fetchAll();
+		}
+
 		public static function createTeamsTable(): void {
 			$db = Database::connection();
 			$db->exec("
@@ -98,7 +160,10 @@
 			");
 		}
 
-		public function saveTeamById(string $teamName): void {}
+		public function saveTeam(string $teamName): void {}
+
+		public function saveRecord(int $teamId, string $season, int $wins, int $losses):
+		void {}
 
 		// TeamID 2
 		// TeamSlug 5
