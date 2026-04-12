@@ -4,8 +4,8 @@
 		<meta charset="UTF-8">
 		<title><?= htmlspecialchars($title ?? 'App') ?></title>
 		<link rel="stylesheet" href="/css/oat.min.css"/>
-		<script src="/scripts/oat.min.js" defer></script>
 		<link rel="stylesheet" href="/css/app.css"/>
+		<script src="/scripts/oat.min.js" defer></script>
 	</head>
 	<body>
 		<?php require __DIR__ . '/../partials/nav.php'; ?>
