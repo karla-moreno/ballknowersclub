@@ -6,7 +6,9 @@
 ?>
 <nav class="container" style="padding-top: var(--space-4);">
 	<?php if (Auth::check()): ?>
-		<span><?= Greeting::forSession() ?>, <?= htmlspecialchars(Auth::user()['name']) ?></span>
+		<span>
+			<?= Greeting::forSession() ?>, <?= htmlspecialchars(Auth::user()['name']); ?>
+		</span>
 		<a href="/logout.php">Logout</a>
 	<?php else: ?>
 		<a href="/login.php">Login</a>
