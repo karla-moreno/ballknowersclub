@@ -36,6 +36,17 @@
 			$db->commit();
 		}
 
+		public function getDraftPicks(string $season): array {
+			$db = Database::connection();
+			$stmt = $db->prepare("SELECT pick.*, team.name as team_name
+	    FROM draft_picks pick
+	    JOIN teams team ON pick.team_id = team.team_id
+	    WHERE pick.season = :season
+	    ORDER BY pick.id ASC");
+			$stmt->execute([':season' => $season]);
+			return $stmt->fetchAll();
+		}
+
 		public static function createDraftTable(): void {
 			$db = Database::connection();
 			$db->exec("

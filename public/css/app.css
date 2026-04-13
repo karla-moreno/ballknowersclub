@@ -9,3 +9,11 @@
 table {
     font-size: 18px;
 }
+
+.badge {
+    text-transform: uppercase;
+}
+
+code strong {
+    font-weight: 900;
+}
