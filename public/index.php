@@ -19,7 +19,8 @@
 	dump(NbaApiService::getRawSeasonStandingsFromTempData());
 ?>
 
-	<h1>Welcome to Skins <?php echo Season::S25_26->label(); ?></h1>
+	<h1>Welcome to Skins <?= Season::S25_26->label(); ?></h1>
+
 <?php if (Auth::check()): ?>
 	<div class="">
 		<?php include __DIR__ . '/../src/Views/partials/stats.php'; ?>
@@ -31,6 +32,7 @@
 		<?php include __DIR__ . '/../src/Views/partials/draft.php'; ?>
 	</div>
 <?php endif; ?>
+
 <?php
 	$content = ob_get_clean();
 	require __DIR__ . '/../src/Views/layouts/main.php';

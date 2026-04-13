@@ -164,10 +164,4 @@
 
 		public function saveRecord(int $teamId, string $season, int $wins, int $losses):
 		void {}
-
-		// TeamID 2
-		// TeamSlug 5
-		// WINS 13
-		// LOSSES 14
-		// Record 17
 	}

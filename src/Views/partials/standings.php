@@ -3,10 +3,10 @@
 	require_once __DIR__ . '/../../../vendor/autoload.php';
 
 	use App\Enums\NBATeam;
+	use App\Enums\Season;
 	use App\Services\NbaApiService;
 
-	$team_records = NbaApiService::allTeamRecordsWithNames(\App\Enums\Season::S25_26);
-	dump($team_records);
+	$team_records = NbaApiService::allTeamRecordsWithNames(Season::S25_26);
 ?>
 
 <section id="standings" class="section">
