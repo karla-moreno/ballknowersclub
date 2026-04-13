@@ -19,6 +19,7 @@
 	$num_picks = 5;
 ?>
 <?php include __DIR__ . '/../../src/Views/partials/picks.php'; ?>
+<?php if (Auth::check()): ?>
 	<div class="row">
 		<?php
 			for ($x = 0; $x <= $num_picks; $x++) {
@@ -85,8 +86,7 @@
 			transform: scale(1.2);">
 				<img id="dialog-logo" height="50"/>
 				<p id="dialog-team" style="font-size: 18px;"></p>
-				<span id="dialog-pick" class="badge" style="text-transform:
-				uppercase;"></span>
+				<span id="dialog-pick" class="badge"></span>
 			</div>
 			<footer>
 				<button type="button" commandfor="commit-dialog" command="close"
@@ -192,6 +192,7 @@
 			err.textContent = message;
 		}
 	</script>
+<?php endif; ?>
 <?php
 	$content = ob_get_clean();
 	require __DIR__ . '/../../src/Views/layouts/main.php';
