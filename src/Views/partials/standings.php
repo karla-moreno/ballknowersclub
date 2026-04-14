@@ -5,8 +5,10 @@
 	use App\Enums\NBATeam;
 	use App\Enums\Season;
 	use App\Services\NbaApiService;
+	use function App\Helpers\getLogo;
 
 	$team_records = NbaApiService::allTeamRecordsWithNames(Season::S25_26);
+	dump($team_records);
 ?>
 
 <section id="standings" class="section">
@@ -29,15 +31,15 @@
 							<td>
 								<div class="flex items-center">
 									<img
-										src="https://cdn.nba.com/logos/nba/<?php echo $record['team_id']; ?>/primary/L/logo.svg"
-										alt="<?php echo $record['name']; ?> logo"
+										src="<?= getLogo($record['team_id']); ?>"
+										alt="<?= $record['name']; ?> logo"
 										height="35"/>
-									<span><?php echo $record['name']; ?></span>
+									<span><?= $record['name']; ?></span>
 								</div>
 							</td>
 							<td><span class="badge success">WINS</span></td>
 							<td>
-								<code><?php echo $record['wins'] . '-' . $record['losses'];; ?></code>
+								<code><?= $record['wins'] . '-' . $record['losses'];; ?></code>
 							</td>
 							<td><code>61</code></td>
 						</tr>
