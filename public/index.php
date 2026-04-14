@@ -6,7 +6,7 @@
 	use App\Services\SeasonService;
 	use Symfony\Component\VarDumper\VarDumper;
 	use App\Auth\Auth;
-	
+
 	$title = 'Index';
 	ob_start();
 
@@ -22,6 +22,8 @@
 			<?php include __DIR__ . '/../src/Views/partials/stats.php'; ?>
 			<hr/>
 		<?php endif; ?>
+		<?php include __DIR__ . '/../src/Views/partials/leaderboard.php'; ?>
+		<hr/>
 		<?php include __DIR__ . '/../src/Views/partials/totals.php'; ?>
 		<hr/>
 		<?php include __DIR__ . '/../src/Views/partials/standings.php'; ?>

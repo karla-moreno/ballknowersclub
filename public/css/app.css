@@ -1,3 +1,7 @@
+body {
+    scrollbar-gutter: stable
+}
+
 .section {
     margin-bottom: var(--space-6);
 }
@@ -16,4 +20,12 @@ table {
 
 code strong {
     font-weight: 900;
+}
+
+.card:has(table):not(:has(h3)) {
+    padding: .25em .75em;
+}
+
+.row h2 {
+    margin-bottom: 0;
 }
