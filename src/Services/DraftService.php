@@ -21,18 +21,31 @@
 			$users = ['woosah', 'okc_glazer', 'Anonymous', 'deadmau5', 'zombiekilla'];
 			$select = ['wins', 'losses'];
 			$rows = $data['resultSets'][0]['rowSet'];
+			shuffle($rows);
+			$pick_limit = intval(ceil(count($rows) / count($users)));
+			$pick_counts = array_fill_keys($users, 0);
+			dump(count($rows));
 			$db = Database::connection();
 			$db->beginTransaction();
 			$db->exec("DELETE FROM draft_picks");
 			$stmt = $db->prepare("INSERT INTO draft_picks (team_id, season, username, skin_select) VALUES (:team_id, :season, :username, :skin_select)");
+
 			foreach ($rows as $row) {
+				do {
+					$user = $users[array_rand($users)];
+				} while (self::hasUserReachedPickLimit($user, $pick_counts, $pick_limit));
+
+				$pick_counts[$user] = $pick_counts[$user] + 1;
+
 				$stmt->execute([
 					               ':team_id' => $row[2],
 					               ':season' => Season::S25_26->value,
-					               ':username' => $users[array_rand($users)],
+					               ':username' => $user,
 					               ':skin_select' => $select[array_rand($select)],
 				               ]);
 			}
+			dump($pick_limit);
+			dump($pick_counts);
 			$db->commit();
 		}
 
@@ -73,5 +86,10 @@
 				               ':username' => $username,
 				               ':skin_select' => $skin_select
 			               ]);
+		}
+
+		private function hasUserReachedPickLimit(string $user, array $pick_counts, float $pick_limit):
+		bool {
+			return ($pick_counts[$user]) >= $pick_limit;
 		}
 	}
