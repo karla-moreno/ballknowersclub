@@ -78,6 +78,8 @@
 			$rows = $data['resultSets'][0]['rowSet'];
 			$db = Database::connection();
 			$db->beginTransaction();
+			$db->exec("DELETE FROM teams");
+			$db->exec("DELETE FROM sqlite_sequence WHERE name='teams'");
 			$stmt = $db->prepare("INSERT INTO teams (team_id, name, slug) VALUES (:team_id, :name, :slug)");
 			foreach ($rows as $row) {
 				$stmt->execute([
