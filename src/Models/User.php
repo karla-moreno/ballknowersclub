@@ -4,15 +4,20 @@
 
 	namespace App\Models;
 
+	use PDO;
 	use App\Database\Database;
 
 	class User {
 		public function __construct(
-			private string  $name,
-			private string  $username,
+			private string $name,
+			private string $username,
 			private ?string $password = null,
-			private ?int    $id = null,
+			private ?int $id = null,
 		) {}
+
+		private static function db(): PDO {
+			return Database::connection();
+		}
 
 		public function getName(): string {
 			return $this->name;
@@ -31,19 +36,17 @@
 		}
 
 		public function save(): void {
-			$db = Database::connection();
-
-			$stmt = $db->prepare("
+			$stmt = self::db()->prepare("
 				INSERT INTO users (name, username, password, role) VALUES (:name, :username, :password, :role)
 			");
 			$stmt->execute([
-				               ':name' => $this->name,
-				               ':username' => $this->username,
-				               ':password' => $this->password,
-				               ':role' => 'user'
-			               ]);
+				':name' => $this->name,
+				':username' => $this->username,
+				':password' => $this->password,
+				':role' => 'user'
+			]);
 
-			$this->id = (int)$db->lastInsertId();
+			$this->id = (int)self::db()->lastInsertId();
 		}
 
 		public function delete(): void {
@@ -51,14 +54,12 @@
 				throw new \RuntimeException("Cannot delete a user without an ID.");
 			}
 
-			$db = Database::connection();
-			$stmt = $db->prepare("DELETE FROM users WHERE id = :id");
+			$stmt = self::db()->prepare("DELETE FROM users WHERE id = :id");
 			$stmt->execute([':id' => $this->id]);
 		}
 
 		public static function findById(int $id): ?self {
-			$db = Database::connection();
-			$stmt = $db->prepare("SELECT * FROM users WHERE id = :id");
+			$stmt = self::db()->prepare("SELECT * FROM users WHERE id = :id");
 			$stmt->execute([':id' => $id]);
 			$row = $stmt->fetch();
 
@@ -69,13 +70,11 @@
 		}
 
 		public static function all(): array {
-			$db = Database::connection();
-			return $db->query("SELECT * FROM users")->fetchAll();
+			return self::db()->query("SELECT * FROM users")->fetchAll();
 		}
 
 		public static function createTable(): void {
-			$db = Database::connection();
-			$db->exec("
+			self::db()->exec("
 				CREATE TABLE IF NOT EXISTS users (
 			    id INTEGER PRIMARY KEY AUTOINCREMENT,
 			    name TEXT NOT NULL,
