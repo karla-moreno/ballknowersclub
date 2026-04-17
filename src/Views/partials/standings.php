@@ -2,13 +2,12 @@
 	declare(strict_types=1);
 	require_once __DIR__ . '/../../../vendor/autoload.php';
 
-	use App\Enums\NBATeam;
+	use App\Models\NBATeam;
 	use App\Enums\Season;
-	use App\Services\NbaApiService;
 	use function App\Helpers\getLogo;
 
-	$team_records = NbaApiService::allTeamRecordsWithNames(Season::S25_26);
-	dump($team_records);
+	$standings = NbaTeam::allStandings(Season::S25_26);
+	usort($standings, fn($a, $b) => $b['skins'] <=> $a['skins']);
 ?>
 
 <section id="standings" class="section">
@@ -20,28 +19,47 @@
 					<thead>
 					<tr>
 						<th>Team</th>
+						<th>Drafter</th>
 						<th>Selected</th>
 						<th>Record</th>
 						<th>Skins</th>
 					</tr>
 					</thead>
 					<tbody>
-					<?php foreach ($team_records as $record): ?>
+					<?php foreach ($standings as $standing): ?>
 						<tr>
 							<td>
 								<div class="flex items-center">
 									<img
-										src="<?= getLogo($record['team_id']); ?>"
-										alt="<?= $record['name']; ?> logo"
+										src="<?= getLogo($standing['team_id']); ?>"
+										alt="<?= $standing['name']; ?> logo"
 										height="35"/>
-									<span><?= $record['name']; ?></span>
+									<span><?= $standing['name']; ?></span>
 								</div>
 							</td>
-							<td><span class="badge success">WINS</span></td>
 							<td>
-								<code><?= $record['wins'] . '-' . $record['losses'];; ?></code>
+								<strong>
+									<?= $standing['username']; ?>
+								</strong>
+								with #
+								<?= $standing['draft_pick_id']; ?>
 							</td>
-							<td><code>61</code></td>
+							<td>
+								<span
+									class="badge <?= $standing['skin_select'] === 'wins' ? 'success' : 'danger'; ?>">
+									<?= $standing['skin_select']; ?>
+								</span>
+							</td>
+							<td>
+								<code>
+									<?= $standing['wins'] . '-' . $standing['losses']; ?>
+								</code>
+							</td>
+							<td>
+								<code>
+									<?= $standing['skins']; ?>
+								</code>
+							</td>
 						</tr>
 					<?php endforeach; ?>
 					</tbody>
