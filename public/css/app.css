@@ -26,6 +26,10 @@ code strong {
     padding: .25em .75em;
 }
 
+.card:has(table):has(h3) {
+    padding: 1em;
+}
+
 .row h2 {
     margin-bottom: 0;
 }
