@@ -10,12 +10,12 @@
     ORDER BY pick.id ASC
 	")->fetchAll();
 
-	dump($picks);
+	//	dump($picks);
 ?>
 
-<div>
+<div class="card" style="margin-bottom: 5em;">
 	<?php if (empty($picks)): ?>
-		<p>No picks yet.</p>
+		<span>No picks yet.</span>
 	<?php else: ?>
 		<table>
 			<thead>
