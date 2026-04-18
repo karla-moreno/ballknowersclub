@@ -41,8 +41,7 @@
 								<strong>
 									<?= $standing['username']; ?>
 								</strong>
-								with #
-								<?= $standing['draft_pick_id']; ?>
+								with #<?= $standing['draft_pick_id']; ?>
 							</td>
 							<td>
 								<span
