@@ -4,17 +4,27 @@
 	require_once __DIR__ . '/../../vendor/autoload.php';
 
 	use App\Auth\Auth;
+	use App\Database\Database;
 	use App\Services\DraftService;
 	use App\Services\NbaApiService;
 	use App\Enums\Season;
 
 	DraftService::createDraftTable();
 
+	$db = Database::connection();
 	$teams = NbaApiService::allTeams();
 	$user = Auth::user();
 
 	$title = 'Draft';
 	ob_start();
+
+	$draft_order = ['okc_glazer', 'Anonymous', 'deadmau5', 'zombiekilla', 'woosah'];
+	$draft_season = Season::S25_26->value;
+
+	$picked_teams = $db->prepare("SELECT team_id FROM draft_picks WHERE season = ?");;
+	$picked_teams->execute([$draft_season]);
+	$picked_teams = $picked_teams->fetchAll(PDO::FETCH_COLUMN) ?? null;
+	// https://www.php.net/manual/en/pdostatement.fetchall.php
 
 	$num_picks = 5;
 ?>
@@ -39,7 +49,10 @@
 						>
 							<option value="">Select an option</option>
 							<?php foreach ($teams as $team) { ?>}
-								<option value="<?= $team['team_id']; ?>">
+								<option
+									value="<?= $team['team_id']; ?>"
+									<?= in_array($team['team_id'], $picked_teams) ? 'disabled'
+										: '' ?>>
 									<?= $team['name']; ?>
 								</option>
 							<?php } ?>
