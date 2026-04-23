@@ -71,14 +71,15 @@
 						<span class="badge danger">LOSSES</span>
 					</label>
 				</fieldset>
-				<footer class="hstack">
+				<footer class="pick-footer hstack">
 					<button commandfor="commit-dialog"
 									command="show-commit-confirmation"
-									id="commit"
+									id="commit-button"
 									data-pick=""
 					>
 						Commit
 					</button>
+					<p id="waiting-for">Waiting for <?= $draft_order[0]; ?>...</p>
 				</footer>
 			</article>
     <?php endif; ?>
@@ -136,8 +137,18 @@
 		});
 	</script>
 	<script id="commit-logic">
+		const queue = <?= json_encode($draft_order); ?>;
+		const currentUser = '<?= htmlspecialchars($user['username'] ?? '') ?>';
+		const currentUserQueuePosition = queue.indexOf(currentUser);
+		const currentDraftingUser = queue[0];
+		const teamSelectInput = document.getElementById(`pick-team`);
+		const teamSelectRadios = document.querySelectorAll(`input[name="selection"]`);
+
+		const commitButton = document.getElementById('commit-button');
+		const dialogConfirmButton = document.getElementById('dialog-confirm');
+
 		let currentPick = {};
-		let lastQueuePickId = <?= $latestPickId ?? 'null' ?>;
+		let lastQueuePickId = <?= $latestPickId ?? 'null'; ?>;
 
 		setInterval(async () => {
 			try {
@@ -147,11 +158,12 @@
 				if (pick.id && pick.id !== lastQueuePickId) {
 					lastQueuePickId = pick.id;
 					disablePickedTeam(pick.team_id.toString());
+					setNextUserInQueue(pick.username);
 				}
 			} catch (err) {
 				console.error('Polling error:', err);
 			}
-		}, 2000);
+		}, 5000);
 
 		function disablePickedTeam(teamId) {
 			const option = document.querySelector(`#pick-team
@@ -159,25 +171,52 @@
 			if (option) option.disabled = true;
 		}
 
-		document.querySelectorAll('[data-pick]').forEach(button => {
-			button.addEventListener('click', () => {
-				const pick = button.dataset.pick;
-				const teamSelect = document.getElementById(`pick-team`);
-				const teamName = teamSelect?.selectedOptions[0]?.text;
-				const selection = document.querySelector(`input[name="selection"]:checked`)?.value;
+		function setNextUserInQueue(username) {
+			let nextUser = queue[queue.indexOf(username) + 1];
+			disableNondraftingUsers(nextUser);
+			activateWaitingFor(nextUser);
+			console.log(nextUser);
+		}
 
-				currentPick = {
-					number: pick,
-					teamId: teamSelect?.value,
-					teamName: teamName,
-					selection,
-					username: '<?= htmlspecialchars($user['username']); ?>',
-					season: '<?= Season::S25_26->value; ?>'
-				};
-			});
+		function disableNondraftingUsers(username) {
+			if (currentUser !== username) {
+				console.log(
+					`Disabled ${username} because it's not their turn.`
+				);
+				teamSelectInput.disabled = true;
+				teamSelectInput.value = '';
+				teamSelectRadios.forEach(r => {
+					r.checked = false;
+					r.disabled = true;
+				})
+				commitButton.disabled = true;
+			} else {
+				teamSelectInput.disabled = false;
+				teamSelectRadios.forEach(r => r.disabled = false)
+				commitButton.disabled = false;
+			}
+		}
+
+		function activateWaitingFor(username) {
+			const waitingForElement = document.getElementById('waiting-for');
+			waitingForElement.textContent = `Waiting for ${username}...`;
+		}
+
+		commitButton?.addEventListener('click', (e) => {
+			const teamSelect = document.getElementById(`pick-team`);
+			const teamName = teamSelect?.selectedOptions[0]?.text;
+			const selection = document.querySelector(`input[name="selection"]:checked`)?.value;
+
+			currentPick = {
+				teamId: teamSelect?.value,
+				teamName: teamName,
+				selection,
+				username: '<?= htmlspecialchars($user['username']); ?>',
+				season: '<?= Season::S25_26->value; ?>'
+			};
 		});
 
-		document.getElementById('dialog-confirm').addEventListener('click', async () => {
+		dialogConfirmButton?.addEventListener('click', async () => {
 			const confirmBtn = document.getElementById('dialog-confirm');
 
 			confirmBtn.disabled = true;
@@ -200,7 +239,6 @@
 							placement: 'top-center'
 						}
 					);
-					// TODO: enable next pick card
 				} else {
 					showDialogError(data.message ?? 'Something went wrong.');
 				}
