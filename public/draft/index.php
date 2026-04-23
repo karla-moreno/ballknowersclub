@@ -18,250 +18,306 @@
   $title = 'Draft';
   ob_start();
 
-  $draft_order = ['okc_glazer', 'Anonymous', 'deadmau5', 'zombiekilla', 'woosah'];
-  $draft_season = Season::S25_26->value;
+  $draft_order = ['okc_glazer', 'deadmau5', 'zombiekilla'];
+  $draft_season = Season::S25_26;
+  $draft_season_value = $draft_season->value;
 
   $picked_teams = $db->prepare("SELECT team_id FROM draft_picks WHERE season = ?");;
-  $picked_teams->execute([$draft_season]);
+  $picked_teams->execute([$draft_season_value]);
   $picked_teams = $picked_teams->fetchAll(PDO::FETCH_COLUMN) ?? null;
   // https://www.php.net/manual/en/pdostatement.fetchall.php
 
+  if (count($picked_teams) == 30) {
+    $draft_complete = true;
+  } else {
+    $draft_complete = false;
+  }
   //	$num_picks = 5;
 ?>
-	<div class="row">
+  <div class="row">
+    <?php if ($draft_complete): ?>
+      <div class="col-12" style="text-align: center;">
+        <p style="font-weight: 800; font-size: 2em;">
+          <?= $draft_season->label(); ?> DRAFT COMPLETE
+        </p>
+      </div>
+    <?php endif; ?>
     <?php if (Auth::check()): ?>
 
-			<article class="card col-5">
-				<header>
-					<h3>Pick</h3>
-				</header>
-				<div data-field>
-					<label>Team</label>
-					<select
-						aria-label="Select an option"
-						id="pick-team"
-					>
-						<option value="">Select an option</option>
+      <div class="card col-5" style="height: min-content; <?php if
+      ($draft_complete): ?>opacity: 0.5;<?php endif; ?>">
+        <header>
+          <h3>Pick</h3>
+        </header>
+        <div data-field>
+          <label>Team</label>
+          <select
+            aria-label="Select an option"
+            id="pick-team"
+            <?= $draft_complete ? 'disabled' : '' ?>
+          >
+            <option value="">Select an option</option>
             <?php foreach ($teams as $team) { ?>
-							<option
-								value="<?= $team['team_id']; ?>"
+              <option
+                value="<?= $team['team_id']; ?>"
                 <?= in_array($team['team_id'], $picked_teams) ? 'disabled'
                   : '' ?>>
                 <?= $team['name']; ?>
-							</option>
+              </option>
             <?php } ?>
-					</select>
-				</div>
-				<fieldset
-					class="hstack"
-				>
-					<legend>Selection</legend>
-					<label>
-						<input type="radio"
-									 name="selection"
-									 id="selection-wins"
-									 value="wins">
-						<span class="badge success">WINS</span>
-					</label>
-					<label>
-						<input type="radio"
-									 name="selection"
-									 id="selection-losses"
-									 value="losses">
-						<span class="badge danger">LOSSES</span>
-					</label>
-				</fieldset>
-				<footer class="pick-footer hstack">
-					<button commandfor="commit-dialog"
-									command="show-commit-confirmation"
-									id="commit-button"
-									data-pick=""
-					>
-						Commit
-					</button>
-					<p id="waiting-for">Waiting for <?= $draft_order[0]; ?>...</p>
-				</footer>
-			</article>
+          </select>
+        </div>
+        <fieldset
+          class="hstack"
+        >
+          <legend>Selection</legend>
+          <label>
+            <input type="radio"
+                   name="selection"
+                   id="selection-wins"
+              <?= $draft_complete ? 'disabled' : '' ?>
+                   value="wins">
+            <span class="badge success">WINS</span>
+          </label>
+          <label>
+            <input type="radio"
+                   name="selection"
+                   id="selection-losses"
+              <?= $draft_complete ? 'disabled' : '' ?>
+                   value="losses">
+            <span class="badge danger">LOSSES</span>
+          </label>
+        </fieldset>
+        <footer class="pick-footer hstack">
+          <button commandfor="commit-dialog"
+                  command="show-commit-confirmation"
+                  id="commit-button"
+                  data-pick=""
+            <?= $draft_complete ? 'disabled' : '' ?>
+          >
+            Commit
+          </button>
+          <?php if (!$draft_complete): ?>
+            <p id="waiting-for">Waiting for <?= $draft_order[0]; ?>...</p>
+          <?php endif; ?>
+        </footer>
+      </div>
     <?php endif; ?>
-		<div class="col-7">
+    <div class="col-7">
       <?php include __DIR__ . '/../../src/Views/partials/picks.php'; ?>
-		</div>
-	</div>
-	<dialog id="commit-dialog" closedby="any">
-		<form method="dialog">
-			<header>
-				<h3>Confirm Pick</h3>
-				<p id="dialog-subheading"></p>
-			</header>
-			<div class="hstack items-center" style="justify-content: center;
+    </div>
+  </div>
+  <dialog id="commit-dialog" closedby="any">
+    <form method="dialog">
+      <header>
+        <h3>Confirm Pick</h3>
+        <p id="dialog-subheading"></p>
+      </header>
+      <div class="hstack items-center" style="justify-content: center;
       transform: scale(1.2);">
-				<img id="dialog-logo" height="50"/>
-				<p id="dialog-team" style="font-size: 18px;"></p>
-				<span id="dialog-pick" class="badge"></span>
-			</div>
-			<footer>
-				<button type="button" commandfor="commit-dialog" command="close"
-								class="outline">Cancel
-				</button>
-				<button value="confirm" id="dialog-confirm">Confirm</button>
-			</footer>
-		</form>
-	</dialog>
-	<script id="dialog-updates">
-		const dialog = document.getElementById('commit-dialog');
-		const dialogSubhead = document.getElementById('dialog-subheading');
-		const dialogLogo = document.getElementById('dialog-logo');
-		const dialogTeam = document.getElementById('dialog-team');
-		const dialogPick = document.getElementById('dialog-pick');
+        <img id="dialog-logo" height="50"/>
+        <p id="dialog-team" style="font-size: 18px;"></p>
+        <span id="dialog-pick" class="badge"></span>
+      </div>
+      <footer>
+        <button type="button" commandfor="commit-dialog" command="close"
+                class="outline">Cancel
+        </button>
+        <button value="confirm" id="dialog-confirm">Confirm</button>
+      </footer>
+    </form>
+  </dialog>
+  <script id="dialog-updates">
+    const dialog = document.getElementById('commit-dialog');
+    const dialogSubhead = document.getElementById('dialog-subheading');
+    const dialogLogo = document.getElementById('dialog-logo');
+    const dialogTeam = document.getElementById('dialog-team');
+    const dialogPick = document.getElementById('dialog-pick');
 
-		document.querySelectorAll('[data-pick]').forEach(button => {
-			button.addEventListener('click', () => {
-				const pick = button.dataset.pick;
-				const team = document.getElementById(`pick-team`)?.selectedOptions[0]?.text;
-				const teamId = document.getElementById(`pick-team`)?.selectedOptions[0]?.value;
-				const selection = document.querySelector
-				(`input[name="selection"]:checked`)?.value;
+    document.querySelectorAll('[data-pick]').forEach(button => {
+      button.addEventListener('click', () => {
+        const pick = button.dataset.pick;
+        const team = document.getElementById(`pick-team`)?.selectedOptions[0]?.text;
+        const teamId = document.getElementById(`pick-team`)?.selectedOptions[0]?.value;
+        const selection = document.querySelector
+        (`input[name="selection"]:checked`)?.value;
 
-				dialogSubhead.textContent = `Team ${pick}`;
-				dialogTeam.textContent = team;
-				dialogPick.textContent = selection;
-				dialogLogo.setAttribute('src', `https://cdn.nba.com/logos/nba/${teamId}/primary/L/logo.svg`);
-				if (selection === 'wins') {
-					dialogPick.classList.remove('danger');
-					dialogPick.classList.add('success');
-				} else {
-					dialogPick.classList.remove('success');
-					dialogPick.classList.add('danger');
-				}
-			});
-		});
-	</script>
-	<script id="commit-logic">
-		const queue = <?= json_encode($draft_order); ?>;
-		const currentUser = '<?= htmlspecialchars($user['username'] ?? '') ?>';
-		const currentUserQueuePosition = queue.indexOf(currentUser);
-		const currentDraftingUser = queue[0];
-		const teamSelectInput = document.getElementById(`pick-team`);
-		const teamSelectRadios = document.querySelectorAll(`input[name="selection"]`);
+        dialogSubhead.textContent = `Team ${pick}`;
+        dialogTeam.textContent = team;
+        dialogPick.textContent = selection;
+        dialogLogo.setAttribute('src', `https://cdn.nba.com/logos/nba/${teamId}/primary/L/logo.svg`);
+        if (selection === 'wins') {
+          dialogPick.classList.remove('danger');
+          dialogPick.classList.add('success');
+        } else {
+          dialogPick.classList.remove('success');
+          dialogPick.classList.add('danger');
+        }
+      });
+    });
+  </script>
+  <script id="commit-logic">
+    const queue = <?= json_encode($draft_order); ?>;
+    const currentUser = '<?= htmlspecialchars($user['username'] ?? '') ?>';
+    const currentUserQueuePosition = queue.indexOf(currentUser);
+    const currentDraftingUser = queue[0];
+    const teamSelectInput = document.getElementById(`pick-team`);
+    const teamSelectRadios = document.querySelectorAll(`input[name="selection"]`);
 
-		const commitButton = document.getElementById('commit-button');
-		const dialogConfirmButton = document.getElementById('dialog-confirm');
+    const commitButton = document.getElementById('commit-button');
+    const dialogConfirmButton = document.getElementById('dialog-confirm');
 
-		let currentPick = {};
-		let lastQueuePickId = <?= $latestPickId ?? 'null'; ?>;
+    let currentPick = {};
+    let lastQueuePickId = <?= $latestPickId ?? 'null'; ?>;
 
-		setInterval(async () => {
-			try {
-				const res = await fetch('/draft/latest-pick.php');
-				const pick = await res.json();
+    setInterval(async () => {
+      try {
+        const res = await fetch('/draft/latest-pick.php');
+        const pick = await res.json();
 
-				if (pick.id && pick.id !== lastQueuePickId) {
-					lastQueuePickId = pick.id;
-					disablePickedTeam(pick.team_id.toString());
-					setNextUserInQueue(pick.username);
-				}
-			} catch (err) {
-				console.error('Polling error:', err);
-			}
-		}, 5000);
+        if (pick.id && pick.id !== lastQueuePickId) {
+          lastQueuePickId = pick.id;
+          disablePickedTeam(pick.team_id.toString());
+          if (!thereArePicksRemaining()) {
+            setDraftComplete();
+          }
+          setNextUserInQueue(pick.username);
+        }
+      } catch (err) {
+        console.error('Polling error:', err);
+      }
+    }, 5000);
 
-		function disablePickedTeam(teamId) {
-			const option = document.querySelector(`#pick-team
+    function disablePickedTeam(teamId) {
+      const option = document.querySelector(`#pick-team
       option[value="${teamId}"]`);
-			if (option) option.disabled = true;
-		}
+      if (option) option.disabled = true;
+    }
 
-		function setNextUserInQueue(username) {
-			let nextUser = queue[queue.indexOf(username) + 1];
-			disableNondraftingUsers(nextUser);
-			activateWaitingFor(nextUser);
-			console.log(nextUser);
-		}
+    function setNextUserInQueue(username) {
+      let nextUser;
+      if (!thereArePicksRemaining()) {
+        activateWaitingFor(null);
+        return;
+      }
+      let prevUserIndex = queue.indexOf(username);
+      if (prevUserIndex === queue.length - 1) {
+        nextUser = queue[0];
+      } else {
+        nextUser = queue[prevUserIndex + 1];
+      }
+      disableNondraftingUsers(nextUser);
+      activateWaitingFor(nextUser);
+    }
 
-		function disableNondraftingUsers(username) {
-			if (currentUser !== username) {
-				console.log(
-					`Disabled ${username} because it's not their turn.`
-				);
-				teamSelectInput.disabled = true;
-				teamSelectInput.value = '';
-				teamSelectRadios.forEach(r => {
-					r.checked = false;
-					r.disabled = true;
-				})
-				commitButton.disabled = true;
-			} else {
-				teamSelectInput.disabled = false;
-				teamSelectRadios.forEach(r => r.disabled = false)
-				commitButton.disabled = false;
-			}
-		}
+    function disableNondraftingUsers(username) {
+      if (currentUser !== username) {
+        teamSelectInput.disabled = true;
+        teamSelectInput.value = '';
+        teamSelectRadios.forEach(r => {
+          r.checked = false;
+          r.disabled = true;
+        })
+        commitButton.disabled = true;
+      } else {
+        teamSelectInput.disabled = false;
+        teamSelectRadios.forEach(r => r.disabled = false)
+        commitButton.disabled = false;
+      }
+    }
 
-		function activateWaitingFor(username) {
-			const waitingForElement = document.getElementById('waiting-for');
-			waitingForElement.textContent = `Waiting for ${username}...`;
-		}
+    function activateWaitingFor(username) {
+      const waitingForElement = document.getElementById('waiting-for');
+      if (username === null) {
+        waitingForElement.style.display = 'none';
+        return;
+      }
+      if (username === currentUser) {
+        waitingForElement.style.display = 'none';
+      } else {
+        waitingForElement.style.display = 'block';
+        waitingForElement.textContent = `Waiting for ${username}...`;
+      }
+    }
 
-		commitButton?.addEventListener('click', (e) => {
-			const teamSelect = document.getElementById(`pick-team`);
-			const teamName = teamSelect?.selectedOptions[0]?.text;
-			const selection = document.querySelector(`input[name="selection"]:checked`)?.value;
+    function thereArePicksRemaining() {
+      const options = document.querySelectorAll('#pick-team option:not([value=""])');
+      return Array.from(options).some(option => !option.disabled);
+    }
 
-			currentPick = {
-				teamId: teamSelect?.value,
-				teamName: teamName,
-				selection,
-				username: '<?= htmlspecialchars($user['username']); ?>',
-				season: '<?= Season::S25_26->value; ?>'
-			};
-		});
+    // TODO: disable commit button if inputs are not filled in
+    // TODO: remove waiting for when is current users turn or draft complete
+    commitButton?.addEventListener('click', (e) => {
+      const teamSelect = document.getElementById(`pick-team`);
+      const teamName = teamSelect?.selectedOptions[0]?.text;
+      const selection = document.querySelector(`input[name="selection"]:checked`)?.value;
 
-		dialogConfirmButton?.addEventListener('click', async () => {
-			const confirmBtn = document.getElementById('dialog-confirm');
+      currentPick = {
+        teamId: teamSelect?.value,
+        teamName: teamName,
+        selection,
+        username: '<?= htmlspecialchars($user['username']); ?>',
+        season: '<?= Season::S25_26->value; ?>'
+      };
+    });
 
-			confirmBtn.disabled = true;
-			confirmBtn.textContent = 'Submitting...';
+    dialogConfirmButton?.addEventListener('click', async () => {
+      const confirmBtn = document.getElementById('dialog-confirm');
 
-			try {
-				const res = await fetch('/draft/commit.php', {
-					method: 'POST',
-					headers: {'Content-Type': 'application/json'},
-					body: JSON.stringify(currentPick)
-				});
+      confirmBtn.disabled = true;
+      confirmBtn.textContent = 'Submitting...';
 
-				const data = await res.json();
+      try {
+        const res = await fetch('/draft/commit.php', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(currentPick)
+        });
 
-				if (data.success) {
-					dialog.close();
-					ot.toast(data.message, 'Success', {
-							duration: 4000,
-							variant: 'success',
-							placement: 'top-center'
-						}
-					);
-				} else {
-					showDialogError(data.message ?? 'Something went wrong.');
-				}
-			} catch (err) {
-				console.error(err);
-				showDialogError('Request failed. Please try again.');
-			} finally {
-				confirmBtn.disabled = false;
-				confirmBtn.textContent = 'Confirm';
-			}
-		});
+        const data = await res.json();
 
-		function showDialogError(message) {
-			let err = document.getElementById('dialog-error');
-			if (!err) {
-				err = document.createElement('p');
-				err.id = 'dialog-error';
-				err.style.color = 'red';
-				document.querySelector('#commit-dialog form').appendChild(err);
-			}
-			err.textContent = message;
-		}
-	</script>
+        if (data.success) {
+          dialog.close();
+          ot.toast(data.message, 'Success', {
+              duration: 4000,
+              variant: 'success',
+              placement: 'top-center'
+            }
+          );
+        } else {
+          showDialogError(data.message ?? 'Something went wrong.');
+        }
+      } catch (err) {
+        console.error(err);
+        showDialogError('Request failed. Please try again.');
+      } finally {
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = 'Confirm';
+      }
+    });
+
+    function showDialogError(message) {
+      let err = document.getElementById('dialog-error');
+      if (!err) {
+        err = document.createElement('p');
+        err.id = 'dialog-error';
+        err.style.color = 'red';
+        document.querySelector('#commit-dialog form').appendChild(err);
+      }
+      err.textContent = message;
+    }
+
+    function setDraftComplete() {
+      teamSelectInput.disabled = true;
+      teamSelectRadios.forEach(r => r.disabled = true)
+      commitButton.disabled = true;
+      ot.toast('All teams have been chosen.', 'DRAFT COMPLETE!', {
+        duration: 5000,
+        variant: 'success',
+        placement: 'top-center'
+      });
+    }
+  </script>
 <?php
   $content = ob_get_clean();
   require __DIR__ . '/../../src/Views/layouts/main.php';
