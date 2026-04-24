@@ -22,7 +22,7 @@
   $draft_season = Season::S25_26;
   $draft_season_value = $draft_season->value;
 
-  $picked_teams = $db->prepare("SELECT team_id FROM draft_picks WHERE season = ?");;
+  $picked_teams = $db->prepare("SELECT team_id FROM draft_picks WHERE season = ?");
   $picked_teams->execute([$draft_season_value]);
   $picked_teams = $picked_teams->fetchAll(PDO::FETCH_COLUMN) ?? null;
   // https://www.php.net/manual/en/pdostatement.fetchall.php
@@ -32,7 +32,7 @@
   } else {
     $draft_complete = false;
   }
-  //	$num_picks = 5;
+  
 ?>
   <div class="row">
     <?php if ($draft_complete): ?>
@@ -42,22 +42,22 @@
         </p>
       </div>
     <?php endif; ?>
-    <?php if (Auth::check()): ?>
-      <div class="col-5">
-        <div class="vstack" style="position: sticky; top: 0;">
-          <div class="card">
-            <header>
-              <h3>Draft order</h3>
-            </header>
-            <ol id="draft-order">
-              <?php foreach ($draft_order as $index => $drafter) { ?>
-                <li>
-                  <?= $drafter; ?><?= $index === 0 ? "<span> ←</span>" :
-                    ""; ?>
-                </li>
-              <?php } ?>
-            </ol>
-          </div>
+    <div class="col-5">
+      <div class="vstack" style="position: sticky; top: 0;">
+        <div class="card">
+          <header>
+            <h3>Draft order</h3>
+          </header>
+          <ol id="draft-order">
+            <?php foreach ($draft_order as $index => $drafter) { ?>
+              <li>
+                <?= $drafter; ?><?= $index === 0 ? "<span> ←</span>" :
+                  ""; ?>
+              </li>
+            <?php } ?>
+          </ol>
+        </div>
+        <?php if (Auth::check()): ?>
           <div class="card" style="height: min-content; <?php if
           ($draft_complete): ?>opacity: 0.5;<?php endif; ?>">
             <header>
@@ -119,13 +119,15 @@
             <p id="pick-error" style="color: var(--danger); display: none;
         margin: 0; margin-top: 1em;"></p>
           </div>
-        </div>
+        <?php endif; ?>
       </div>
-    <?php endif; ?>
+    </div>
+
     <div class="col-7">
       <?php include __DIR__ . '/../../src/Views/partials/picks.php'; ?>
     </div>
   </div>
+<?php if (Auth::check()): ?>
   <dialog id="commit-dialog" closedby="any">
     <form method="dialog">
       <header>
@@ -361,6 +363,7 @@
       });
     }
   </script>
+<?php endif; ?>
 <?php
   $content = ob_get_clean();
   require __DIR__ . '/../../src/Views/layouts/main.php';
