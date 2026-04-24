@@ -89,18 +89,21 @@
           </label>
         </fieldset>
         <footer class="pick-footer hstack">
-          <button commandfor="commit-dialog"
-                  command="show-commit-confirmation"
-                  id="commit-button"
-                  data-pick=""
+          <button
+            id="commit-button"
+            data-pick=""
             <?= $draft_complete ? 'disabled' : '' ?>
           >
             Commit
           </button>
           <?php if (!$draft_complete): ?>
-            <p id="waiting-for">Waiting for <?= $draft_order[0]; ?>...</p>
+            <p id="waiting-for" style="opacity: 0.6;">Waiting for <?=
+                $draft_order[0]; ?>...
+            </p>
           <?php endif; ?>
         </footer>
+        <p id="pick-error" style="color: var(--danger); display: none;
+        margin: 0; margin-top: 1em;"></p>
       </div>
     <?php endif; ?>
     <div class="col-7">
@@ -134,26 +137,36 @@
     const dialogTeam = document.getElementById('dialog-team');
     const dialogPick = document.getElementById('dialog-pick');
 
-    document.querySelectorAll('[data-pick]').forEach(button => {
-      button.addEventListener('click', () => {
-        const pick = button.dataset.pick;
-        const team = document.getElementById(`pick-team`)?.selectedOptions[0]?.text;
-        const teamId = document.getElementById(`pick-team`)?.selectedOptions[0]?.value;
-        const selection = document.querySelector
-        (`input[name="selection"]:checked`)?.value;
+    const commitBtn = document.getElementById('commit-button');
 
-        dialogSubhead.textContent = `Team ${pick}`;
-        dialogTeam.textContent = team;
-        dialogPick.textContent = selection;
-        dialogLogo.setAttribute('src', `https://cdn.nba.com/logos/nba/${teamId}/primary/L/logo.svg`);
-        if (selection === 'wins') {
-          dialogPick.classList.remove('danger');
-          dialogPick.classList.add('success');
-        } else {
-          dialogPick.classList.remove('success');
-          dialogPick.classList.add('danger');
-        }
-      });
+    commitBtn?.addEventListener('click', (e) => {
+      const team = document.getElementById(`pick-team`)?.selectedOptions[0]?.text;
+      const teamId = document.getElementById(`pick-team`)?.selectedOptions[0]?.value;
+      const selection = document.querySelector
+      (`input[name="selection"]:checked`)?.value;
+      const pickError = document.getElementById('pick-error');
+
+      if (!teamId || !selection) {
+        e.preventDefault();
+        pickError.textContent = !teamId
+          ? 'Please select a team.'
+          : 'Please select Wins or Losses.';
+        pickError.style.display = 'block';
+        return;
+      }
+      pickError.style.display = 'none';
+
+      dialogTeam.textContent = team;
+      dialogPick.textContent = selection;
+      dialogLogo.setAttribute('src', `https://cdn.nba.com/logos/nba/${teamId}/primary/L/logo.svg`);
+      if (selection === 'wins') {
+        dialogPick.classList.remove('danger');
+        dialogPick.classList.add('success');
+      } else {
+        dialogPick.classList.remove('success');
+        dialogPick.classList.add('danger');
+      }
+      dialog.showModal();
     });
   </script>
   <script id="commit-logic">
