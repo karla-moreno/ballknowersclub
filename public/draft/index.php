@@ -32,7 +32,17 @@
   } else {
     $draft_complete = false;
   }
-  
+
+  /* TODO:
+  * - update page on refresh/server-side instead of relying on js/polling
+  * - update table with JS when draft has started/no picks in db
+  * - protect against fellow engineers making post requests to commit.php
+  * --- endpoint or manipulating DOM
+  * - check if is current draft picker from commit.php and handle
+  * --- accordingly if not
+  * - extract JS to TS, add vite?
+  */
+
 ?>
   <div class="row">
     <?php if ($draft_complete): ?>
