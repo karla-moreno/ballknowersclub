@@ -38,6 +38,7 @@
   }
   $title = 'Register';
   $teams = (new NbaApiService)::allTeams();
+  // TODO: create reset password page
   ob_start();
 ?>
   <h1>Register</h1>
@@ -73,6 +74,8 @@
         Password
         <input type="password" name="password" required>
       </label>
+
+      <!-- TODO: link favorite team to db and model, use for 2fa-->
       <div data-field>
         <label>Favorite team</label>
         <select aria-label="Select an option">
