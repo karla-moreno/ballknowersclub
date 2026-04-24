@@ -43,67 +43,83 @@
       </div>
     <?php endif; ?>
     <?php if (Auth::check()): ?>
-
-      <div class="card col-5" style="height: min-content; <?php if
-      ($draft_complete): ?>opacity: 0.5;<?php endif; ?>">
-        <header>
-          <h3>Pick</h3>
-        </header>
-        <div data-field>
-          <label>Team</label>
-          <select
-            aria-label="Select an option"
-            id="pick-team"
-            <?= $draft_complete ? 'disabled' : '' ?>
-          >
-            <option value="">Select an option</option>
-            <?php foreach ($teams as $team) { ?>
-              <option
-                value="<?= $team['team_id']; ?>"
-                <?= in_array($team['team_id'], $picked_teams) ? 'disabled'
-                  : '' ?>>
-                <?= $team['name']; ?>
-              </option>
-            <?php } ?>
-          </select>
-        </div>
-        <fieldset
-          class="hstack"
-        >
-          <legend>Selection</legend>
-          <label>
-            <input type="radio"
-                   name="selection"
-                   id="selection-wins"
-              <?= $draft_complete ? 'disabled' : '' ?>
-                   value="wins">
-            <span class="badge success">WINS</span>
-          </label>
-          <label>
-            <input type="radio"
-                   name="selection"
-                   id="selection-losses"
-              <?= $draft_complete ? 'disabled' : '' ?>
-                   value="losses">
-            <span class="badge danger">LOSSES</span>
-          </label>
-        </fieldset>
-        <footer class="pick-footer hstack">
-          <button
-            id="commit-button"
-            data-pick=""
-            <?= $draft_complete ? 'disabled' : '' ?>
-          >
-            Commit
-          </button>
-          <?php if (!$draft_complete): ?>
-            <p id="waiting-for" style="opacity: 0.6;">Waiting for <?=
-                $draft_order[0]; ?>...
-            </p>
-          <?php endif; ?>
-        </footer>
-        <p id="pick-error" style="color: var(--danger); display: none;
+      <div class="col-5">
+        <div class="vstack" style="position: sticky; top: 0;">
+          <div class="card">
+            <header>
+              <h3>Draft order</h3>
+            </header>
+            <ol id="draft-order">
+              <?php foreach ($draft_order as $index => $drafter) { ?>
+                <li>
+                  <?= $drafter; ?><?= $index === 0 ? "<span> ←</span>" :
+                    ""; ?>
+                </li>
+              <?php } ?>
+            </ol>
+          </div>
+          <div class="card" style="height: min-content; <?php if
+          ($draft_complete): ?>opacity: 0.5;<?php endif; ?>">
+            <header>
+              <h3>Pick</h3>
+            </header>
+            <div data-field>
+              <label>Team</label>
+              <select
+                aria-label="Select an option"
+                id="pick-team"
+                <?= $draft_complete ? 'disabled' : '' ?>
+              >
+                <option value="">Select an option</option>
+                <?php foreach ($teams as $team) { ?>
+                  <option
+                    value="<?= $team['team_id']; ?>"
+                    <?= in_array($team['team_id'], $picked_teams) ? 'disabled'
+                      : '' ?>>
+                    <?= $team['name']; ?>
+                  </option>
+                <?php } ?>
+              </select>
+            </div>
+            <fieldset
+              class="hstack"
+            >
+              <legend>Selection</legend>
+              <label>
+                <input type="radio"
+                       name="selection"
+                       id="selection-wins"
+                  <?= $draft_complete ? 'disabled' : '' ?>
+                       value="wins">
+                <span class="badge success">WINS</span>
+              </label>
+              <label>
+                <input type="radio"
+                       name="selection"
+                       id="selection-losses"
+                  <?= $draft_complete ? 'disabled' : '' ?>
+                       value="losses">
+                <span class="badge danger">LOSSES</span>
+              </label>
+            </fieldset>
+            <footer class="pick-footer hstack">
+              <button
+                id="commit-button"
+                data-pick=""
+                <?= $draft_complete ? 'disabled' : '' ?>
+              >
+                Commit
+              </button>
+              <?php if (!$draft_complete): ?>
+                <p id="waiting-for" style="opacity: 0.6;">Waiting for <?=
+                    $draft_order[0]; ?>...
+                </p>
+              <?php endif; ?>
+            </footer>
+            <p id="pick-error" style="color: var(--danger); display: none;
         margin: 0; margin-top: 1em;"></p>
+          </div>
+        </div>
       </div>
     <?php endif; ?>
     <div class="col-7">
@@ -219,6 +235,7 @@
       } else {
         nextUser = queue[prevUserIndex + 1];
       }
+      setDraftOrderIndicator(nextUser);
       disableNondraftingUsers(nextUser);
       activateWaitingFor(nextUser);
     }
@@ -251,6 +268,19 @@
         waitingForElement.style.display = 'block';
         waitingForElement.textContent = `Waiting for ${username}...`;
       }
+    }
+
+    function setDraftOrderIndicator(username) {
+      const drafterElements = document.querySelectorAll('#draft-order li');
+      drafterElements.forEach(el => {
+        if (el.textContent.trim() === username) {
+          const span = document.createElement('span');
+          span.textContent = ' ←';
+          el.appendChild(span);
+        } else {
+          el.querySelector('span')?.remove();
+        }
+      })
     }
 
     function thereArePicksRemaining() {
