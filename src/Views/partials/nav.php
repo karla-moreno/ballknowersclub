@@ -7,7 +7,7 @@
 <nav class="container" style="padding-top: var(--space-4);">
   <?php if (Auth::check()): ?>
     <span style="display: block;">
-			<?= Greeting::forSession() ?>, <?= htmlspecialchars(Auth::user()['name']); ?>
+			<?= Greeting::forSession() ?>, <?= htmlspecialchars(Auth::user()['username']); ?>
 		</span>
     <div class="hstack" style="font-size: 13px; text-transform: uppercase;">
       <a href="/">Home</a>
