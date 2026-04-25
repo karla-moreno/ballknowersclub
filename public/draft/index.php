@@ -37,13 +37,10 @@
   $last_pick_stmt->execute([$draft_season_value]);
   $last_pick = $last_pick_stmt->fetchAll() ?? null;
 
-  dump($last_pick[0]['username']);
-  $last_drafter_index = array_search($last_pick[0]['username'], $draft_order);
-  dump($last_drafter_index);
-  $current_drafter = $draft_order[(array_search($last_pick[0]['username'],
-      $draft_order) + 1) % count($draft_order)] ??
-    $draft_order[0];
-  dump($current_drafter);
+  $last_pick_username = $last_pick[0]['username'];
+  $last_drafter_index = array_search($last_pick_username, $draft_order);
+  $current_drafter = $draft_order[(array_search($last_pick_username,
+      $draft_order) + 1) % count($draft_order)] ?? $draft_order[0];
 
   $current_user = $user['username'] ?? null;
 
@@ -74,7 +71,9 @@
           <ol id="draft-order">
             <?php foreach ($draft_order as $index => $drafter) { ?>
               <li data-drafter="<?= $drafter; ?>">
-                <?= $drafter; ?><?= $drafter === $current_drafter ? "<span> ←</span>" :
+                <?= $drafter; ?>
+                <?= $drafter === $current_drafter ?
+                  "<span> ←</span>" :
                   ""; ?>
               </li>
             <?php } ?>
@@ -97,23 +96,21 @@
                 <?php foreach ($teams as $team) { ?>
                   <option
                     value="<?= $team['team_id']; ?>"
-                    <?= in_array($team['team_id'], $picked_teams) ? 'disabled'
+                    <?= in_array($team['team_id'], $picked_teams) ?
+                      'disabled'
                       : '' ?>>
                     <?= $team['name']; ?>
                   </option>
                 <?php } ?>
               </select>
             </div>
-            <fieldset
-              class="hstack"
-            >
+            <fieldset class="hstack">
               <legend>Selection</legend>
               <label>
                 <input type="radio"
                        name="selection"
                        id="selection-wins"
-                  <?= $draft_complete || $current_user !==
-                  $current_drafter ? 'disabled' : '' ?>
+                  <?= $draft_complete || $current_user !== $current_drafter ? 'disabled' : '' ?>
                        value="wins">
                 <span class="badge success">WINS</span>
               </label>
@@ -135,14 +132,15 @@
                 Commit
               </button>
               <?php if (!$draft_complete): ?>
-                <p id="waiting-for" style="opacity: 0.6;">Waiting for <?=
-                    $current_drafter === $current_user ? 'you' : $current_drafter; ?>
+                <p id="waiting-for" style="opacity: 0.6;">
+                  Waiting for
+                  <?= $current_drafter === $current_user ? 'you' : $current_drafter; ?>
                   ...
                 </p>
               <?php endif; ?>
             </footer>
             <p id="pick-error" style="color: var(--danger); display: none;
-        margin: 0; margin-top: 1em;"></p>
+            margin: 0; margin-top: 1em;"></p>
           </div>
         <?php endif; ?>
       </div>
@@ -300,7 +298,6 @@
     function setDraftOrderIndicator(username) {
       const drafterElements = document.querySelectorAll('#draft-order li');
       drafterElements.forEach(el => {
-        console.log(el.textContent.trim())
         if (el.dataset.drafter === username && !(el.querySelector('span'))) {
           const span = document.createElement('span');
           span.textContent = ' ←';
@@ -309,13 +306,6 @@
         if (el.dataset.drafter !== username) {
           el.querySelector('span')?.remove();
         }
-        // if (el.textContent.trim() === username) {
-        //   const span = document.createElement('span');
-        //   span.textContent = ' ←';
-        //   el.appendChild(span);
-        // } else {
-        //   el.querySelector('span')?.remove();
-        // }
       })
     }
 
