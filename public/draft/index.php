@@ -33,8 +33,21 @@
     $draft_complete = false;
   }
 
+  $last_pick_stmt = $db->prepare("SELECT * FROM draft_picks WHERE season = ? ORDER BY id DESC LIMIT 1");
+  $last_pick_stmt->execute([$draft_season_value]);
+  $last_pick = $last_pick_stmt->fetchAll() ?? null;
+
+  dump($last_pick[0]['username']);
+  $last_drafter_index = array_search($last_pick[0]['username'], $draft_order);
+  dump($last_drafter_index);
+  $current_drafter = $draft_order[(array_search($last_pick[0]['username'],
+      $draft_order) + 1) % count($draft_order)] ??
+    $draft_order[0];
+  dump($current_drafter);
+
+  $current_user = $user['username'] ?? null;
+
   /* TODO:
-  * - update page on refresh/server-side instead of relying on js/polling
   * - update table with JS when draft has started/no picks in db
   * - protect against fellow engineers making post requests to commit.php
   * --- endpoint or manipulating DOM
@@ -60,8 +73,8 @@
           </header>
           <ol id="draft-order">
             <?php foreach ($draft_order as $index => $drafter) { ?>
-              <li>
-                <?= $drafter; ?><?= $index === 0 ? "<span> ←</span>" :
+              <li data-drafter="<?= $drafter; ?>">
+                <?= $drafter; ?><?= $drafter === $current_drafter ? "<span> ←</span>" :
                   ""; ?>
               </li>
             <?php } ?>
@@ -78,7 +91,7 @@
               <select
                 aria-label="Select an option"
                 id="pick-team"
-                <?= $draft_complete ? 'disabled' : '' ?>
+                <?= $draft_complete || $current_user !== $current_drafter ? 'disabled' : '' ?>
               >
                 <option value="">Select an option</option>
                 <?php foreach ($teams as $team) { ?>
@@ -99,7 +112,8 @@
                 <input type="radio"
                        name="selection"
                        id="selection-wins"
-                  <?= $draft_complete ? 'disabled' : '' ?>
+                  <?= $draft_complete || $current_user !==
+                  $current_drafter ? 'disabled' : '' ?>
                        value="wins">
                 <span class="badge success">WINS</span>
               </label>
@@ -107,7 +121,7 @@
                 <input type="radio"
                        name="selection"
                        id="selection-losses"
-                  <?= $draft_complete ? 'disabled' : '' ?>
+                  <?= $draft_complete || $current_user !== $current_drafter ? 'disabled' : '' ?>
                        value="losses">
                 <span class="badge danger">LOSSES</span>
               </label>
@@ -116,13 +130,14 @@
               <button
                 id="commit-button"
                 data-pick=""
-                <?= $draft_complete ? 'disabled' : '' ?>
+                <?= $draft_complete || $current_user !== $current_drafter ? 'disabled' : '' ?>
               >
                 Commit
               </button>
               <?php if (!$draft_complete): ?>
                 <p id="waiting-for" style="opacity: 0.6;">Waiting for <?=
-                    $draft_order[0]; ?>...
+                    $current_drafter === $current_user ? 'you' : $current_drafter; ?>
+                  ...
                 </p>
               <?php endif; ?>
             </footer>
@@ -285,13 +300,22 @@
     function setDraftOrderIndicator(username) {
       const drafterElements = document.querySelectorAll('#draft-order li');
       drafterElements.forEach(el => {
-        if (el.textContent.trim() === username) {
+        console.log(el.textContent.trim())
+        if (el.dataset.drafter === username && !(el.querySelector('span'))) {
           const span = document.createElement('span');
           span.textContent = ' ←';
           el.appendChild(span);
-        } else {
+        }
+        if (el.dataset.drafter !== username) {
           el.querySelector('span')?.remove();
         }
+        // if (el.textContent.trim() === username) {
+        //   const span = document.createElement('span');
+        //   span.textContent = ' ←';
+        //   el.appendChild(span);
+        // } else {
+        //   el.querySelector('span')?.remove();
+        // }
       })
     }
 
