@@ -71,6 +71,6 @@
 			$current = $this->makeDate(new DateTime('@' . $date->getTimestamp())->format('Y-m-d'));
 			$diff = $current->diff($end);
 
-			return max($diff->days, 0);
+			return $diff->invert ? -$diff->days : $diff->days;
 		}
 	}
