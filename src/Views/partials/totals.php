@@ -5,6 +5,7 @@
   use App\Auth\Auth;
   use App\Database\Database;
   use function App\Helpers\GetLogo;
+  use function App\Helpers\skinSelect;
 
   $db = Database::connection();
   //	$picks = $db->query("
@@ -73,7 +74,7 @@
                 </td>
                 <td>
 									<span
-                    class="badge <?= $pick['skin_select'] === 'wins' ? 'success' : 'danger'; ?>"
+                    class="badge <?= skinSelect($pick['skin_select']); ?>"
                   >
 										<?= $pick['skin_select']; ?>
 									</span>
