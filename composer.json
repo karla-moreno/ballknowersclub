@@ -15,7 +15,8 @@
       "App\\": "src/"
     },
     "files": [
-      "src/Helpers/GetLogo.php"
+      "src/Helpers/GetLogo.php",
+      "src/Helpers/SkinSelect.php"
     ]
   },
   "autoload-dev": {
