@@ -45,10 +45,12 @@
                 with #<?= $standing['draft_pick_id']; ?>
               </td>
               <td>
-								<span
-                  class="badge <?= skinSelect($standing['skin_select']); ?>">
-									<?= $standing['skin_select']; ?>
-								</span>
+                <?php if ($standing['skin_select'] !== null): ?>
+                  <span
+                    class="badge <?= skinSelect($standing['skin_select']); ?>">
+                <?= $standing['skin_select']; ?>
+                </span>
+                <?php endif; ?>
               </td>
               <td>
                 <code>
