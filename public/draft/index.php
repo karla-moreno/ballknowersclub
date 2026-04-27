@@ -37,10 +37,14 @@
   $last_pick_stmt->execute([$draft_season_value]);
   $last_pick = $last_pick_stmt->fetchAll() ?? null;
 
-  $last_pick_username = $last_pick[0]['username'];
-  $last_drafter_index = array_search($last_pick_username, $draft_order);
-  $current_drafter = $draft_order[(array_search($last_pick_username,
-      $draft_order) + 1) % count($draft_order)] ?? $draft_order[0];
+  if (empty($last_pick)) {
+    $current_drafter = $draft_order[0];
+  } else {
+    $last_pick_username = $last_pick[0]['username'];
+    $last_drafter_index = array_search($last_pick_username, $draft_order);
+    $current_drafter = $draft_order[(array_search($last_pick_username,
+        $draft_order) + 1) % count($draft_order)] ?? $draft_order[0];
+  }
 
   $current_user = $user['username'] ?? null;
 
@@ -72,7 +76,7 @@
             <?php foreach ($draft_order as $index => $drafter) { ?>
               <li data-drafter="<?= $drafter; ?>">
                 <?= $drafter; ?>
-                <?= $drafter === $current_drafter ?
+                <?= !$draft_complete && $drafter === $current_drafter ?
                   "<span> ←</span>" :
                   ""; ?>
               </li>
