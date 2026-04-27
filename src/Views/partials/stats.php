@@ -12,7 +12,6 @@
   $db = Database::connection();
 
   $season_service = new SeasonService();
-  $season = Season::S25_26;
   $date = new DateTimeImmutable();
   $current_username = htmlspecialchars(Auth::user()['username']);
   try {

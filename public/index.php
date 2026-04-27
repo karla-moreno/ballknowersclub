@@ -15,7 +15,7 @@
   $date = new DateTimeImmutable();
 ?>
 
-  <h1>Welcome to Skins <?= Season::S25_26->label(); ?></h1>
+  <h1>Welcome to Skins <?= $season->label(); ?></h1>
 
   <div class="">
     <?php if (Auth::check()): ?>
