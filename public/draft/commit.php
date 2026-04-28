@@ -4,11 +4,19 @@
   use App\Auth\Auth;
   use App\Services\DraftService;
 
+  if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    header('Content-Type: application/json');
+    echo json_encode(['success' => false, 'message' => 'Method not allowed.']);
+    exit;
+  }
+
   Auth::require();
   $session_user = Auth::user();
 
   if (!$session_user) {
     http_response_code(401);
+    header('Content-Type: application/json');
     echo json_encode(['success' => false, 'message' => 'Unauthorized.']);
     exit;
   }
@@ -25,6 +33,7 @@
 
   if (!$teamId || !in_array($selection, ['wins', 'losses'], true)) {
     http_response_code(400);
+    header('Content-Type: application/json');
     echo json_encode(['success' => false, 'message' => 'Invalid input.']);
     exit;
   }
@@ -32,13 +41,15 @@
   try {
     $draftService = new DraftService();
     $draftService->saveDraftPick($teamId, $season, $username, $selection);
-
+    http_response_code(200);
+    header('Content-Type: application/json');
     echo json_encode([
       'success' => true,
       'message' => "{$username} uses pick to select {$teamName}'s {$selection}",
     ]);
   } catch (Exception $e) {
     http_response_code(500);
+    header('Content-Type: application/json');
     echo json_encode([
       'success' => false,
       'message' => 'Failed to save pick: ' . $e->getMessage(),
