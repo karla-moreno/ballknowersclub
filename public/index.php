@@ -23,11 +23,8 @@
       <hr/>
     <?php endif; ?>
     <?php include __DIR__ . '/../src/Views/partials/leaderboard.php'; ?>
-    <hr/>
     <?php include __DIR__ . '/../src/Views/partials/totals.php'; ?>
-    <hr/>
     <?php include __DIR__ . '/../src/Views/partials/standings.php'; ?>
-    <hr/>
     <?php include __DIR__ . '/../src/Views/partials/draft.php'; ?>
   </div>
 
