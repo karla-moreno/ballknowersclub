@@ -18,6 +18,7 @@
     }
 
     public static function login(string $username, string $password): bool {
+      self::start();
       $db = Database::connection();
       $stmt = $db->prepare('SELECT * FROM users WHERE username = :username LIMIT 1');
       $stmt->execute([':username' => $username]);
