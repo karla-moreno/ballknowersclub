@@ -22,10 +22,15 @@
 
     if (empty($errors)) {
       try {
+        $password = $_POST['password'];
         $user = new User($username);
-        $user->setPassword($_POST['password']);
+        $user->setPassword($password);
         $user->save();
-        $success = "Registered user #{$user->getId()}: {$user}";
+
+        Auth::login($username, $password);
+
+        header('Location: /');
+        exit;
       } catch (PDOException $e) {
         if ($e->getCode() === '23000') {
           $errors[] = 'User already exists.';
