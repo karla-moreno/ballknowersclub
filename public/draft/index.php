@@ -18,7 +18,7 @@
   $title = 'Draft';
   ob_start();
 
-  $draft_order = ['okc_glazer', 'deadmau5', 'zombiekilla'];
+  $draft_order = ['test', 'deadmau5', 'zombiekilla'];
   $draft_season = Season::S25_26;
   $draft_season_value = $draft_season->value;
 
@@ -35,12 +35,12 @@
 
   $last_pick_stmt = $db->prepare("SELECT * FROM draft_picks WHERE season = ? ORDER BY id DESC LIMIT 1");
   $last_pick_stmt->execute([$draft_season_value]);
-  $last_pick = $last_pick_stmt->fetchAll() ?? null;
+  $last_pick = $last_pick_stmt->fetch();
 
-  if (empty($last_pick)) {
+  if (!$last_pick) {
     $current_drafter = $draft_order[0];
   } else {
-    $last_pick_username = $last_pick[0]['username'];
+    $last_pick_username = $last_pick['username'];
     $last_drafter_index = array_search($last_pick_username, $draft_order);
     $current_drafter = $draft_order[(array_search($last_pick_username,
         $draft_order) + 1) % count($draft_order)] ?? $draft_order[0];
@@ -228,6 +228,7 @@
     let currentPick = {};
     let lastQueuePickId = <?= $latestPickId ?? 'null'; ?>;
 
+    // TODO: get this out of auth check
     setInterval(async () => {
       try {
         const res = await fetch('/draft/latest-pick.php');
@@ -318,7 +319,6 @@
       return Array.from(options).some(option => !option.disabled);
     }
 
-    // TODO: disable commit button if inputs are not filled in
     // TODO: remove waiting for when is current users turn or draft complete
     commitButton?.addEventListener('click', (e) => {
       const teamSelect = document.getElementById(`pick-team`);
