@@ -82,4 +82,5 @@
       </div>
     </div>
   </section>
+  <hr/>
 <?php endif; ?>

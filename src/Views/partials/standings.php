@@ -39,10 +39,14 @@
                 </div>
               </td>
               <td>
-                <strong>
-                  <?= $standing['username']; ?>
-                </strong>
-                with #<?= $standing['draft_pick_id']; ?>
+                <?php if ($standing['username'] && $standing['draft_pick_id']): ?>
+                  <strong>
+                    <?= $standing['username']; ?>
+                  </strong>
+                  with #<?= $standing['draft_pick_id']; ?>
+                <?php else: ?>
+                  <em>Undrafted</em>
+                <?php endif ?>
               </td>
               <td>
                 <?php if ($standing['skin_select'] !== null): ?>
@@ -58,9 +62,11 @@
                 </code>
               </td>
               <td>
-                <code>
-                  <?= $standing['skins']; ?>
-                </code>
+                <?php if ($standing['skins']) : ?>
+                  <code>
+                    <?= $standing['skins']; ?>
+                  </code>
+                <?php endif; ?>
               </td>
             </tr>
           <?php endforeach; ?>
@@ -70,3 +76,4 @@
     </article>
   </div>
 </section>
+<hr/>
