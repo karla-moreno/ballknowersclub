@@ -16,69 +16,88 @@
 
 <div class="card" style="margin-bottom: 5em;">
   <?php if (empty($picks)): ?>
-    <span>No picks yet.</span>
-  <?php else: ?>
-    <table>
-      <thead>
-      <tr>
-        <th>Pick</th>
-        <th>Username</th>
-        <th>Team</th>
-        <th>Selection</th>
-        <th>Season</th>
-      </tr>
-      </thead>
-      <tbody id="draft-picks">
-      <?php foreach ($picks as $i => $pick): ?>
+  <table>
+    <thead>
+    <tr>
+      <th>Pick</th>
+      <th>Username</th>
+      <th>Team</th>
+      <th>Selection</th>
+      <th>Season</th>
+    </tr>
+    </thead>
+    <tbody id="draft-picks">
+    <tr id="no-picks">
+      <td colspan="5" style="text-align: center;">
+        <span>No picks yet.</span>
+      </td>
+    </tr>
+    </tbody>
+    <?php else: ?>
+      <table>
+        <thead>
         <tr>
-          <td><?= $i + 1 ?></td>
-          <td><?= htmlspecialchars($pick['username']) ?></td>
-          <td><?= htmlspecialchars($pick['team_name']) ?></td>
-          <td>
+          <th>Pick</th>
+          <th>Username</th>
+          <th>Team</th>
+          <th>Selection</th>
+          <th>Season</th>
+        </tr>
+        </thead>
+        <tbody id="draft-picks">
+        <?php foreach ($picks as $i => $pick): ?>
+          <tr>
+            <td><?= $i + 1 ?></td>
+            <td><?= htmlspecialchars($pick['username']) ?></td>
+            <td><?= htmlspecialchars($pick['team_name']) ?></td>
+            <td>
             <span
               class="badge <?= skinSelect($pick['skin_select']); ?>">
               <?= htmlspecialchars($pick['skin_select']) ?>
             </span>
-          </td>
-          <td><?= htmlspecialchars($pick['season']) ?></td>
-        </tr>
-      <?php endforeach; ?>
-      </tbody>
-    </table>
-  <?php endif; ?>
-  <script>
-    let lastPickId = <?= !empty($picks) ? end($picks)['id'] : 'null' ?>;
+            </td>
+            <td><?= htmlspecialchars($pick['season']) ?></td>
+          </tr>
+        <?php endforeach; ?>
+        </tbody>
+      </table>
+    <?php endif; ?>
+    <script>
+      let lastPickId = <?= !empty($picks) ? end($picks)['id'] : 'null' ?>;
 
-    setInterval(async () => {
-      try {
-        const res = await fetch('/draft/latest-pick.php');
-        const latestPick = await res.json();
-        // 	if (data.id && data.id !== lastPickId) {
-        // 		lastPickId = data.id;
-        // 		console.log('New pick:', data);
-        // 	}
-        console.log('Polling — latestId:', latestPick.id, 'lastPickId:',
-          lastPickId);
+      setInterval(async () => {
+        try {
+          const res = await fetch('/draft/latest-pick.php');
+          const latestPick = await res.json();
+          // 	if (data.id && data.id !== lastPickId) {
+          // 		lastPickId = data.id;
+          // 		console.log('New pick:', data);
+          // 	}
+          console.log('Polling — latestId:', latestPick.id, 'lastPickId:',
+            lastPickId);
 
-        if (latestPick.id && latestPick.id !== lastPickId) {
-          lastPickId = latestPick.id;
+          if (latestPick.id && latestPick.id !== lastPickId) {
+            lastPickId = latestPick.id;
 
-          console.log(latestPick);
-          const tbody = document.getElementById('draft-picks');
-          const tr = document.createElement('tr');
+            console.log(latestPick);
+            if (document.getElementById('no-picks')) {
+              document.getElementById('no-picks').remove();
+            }
+            const tbody = document.getElementById('draft-picks');
+            const tr = document.createElement('tr');
 
-          tr.innerHTML = `
-					  <td>${latestPick.id}</td>
-					  <td>${latestPick.username}</td>
-					  <td>${latestPick.team_name}</td>
-					  <td>${latestPick.skin_select}</td>
-					  <td>${latestPick.season}</td>
-					`;
-          tbody.appendChild(tr);
+            tr.innerHTML = `
+        <td>${latestPick.id}</td>
+        <td>${latestPick.username}</td>
+        <td>${latestPick.team_name}</td>
+        <td>${latestPick.skin_select}</td>
+        <td>${latestPick.season}</td>
+      `;
+            tbody.appendChild(tr);
+          }
+        } catch (err) {
+          console.error('Polling error:', err);
         }
-      } catch (err) {
-        console.error('Polling error:', err);
-      }
-    }, 2000);
-  </script>
+      }, 2000);
+    </script>
 </div>
