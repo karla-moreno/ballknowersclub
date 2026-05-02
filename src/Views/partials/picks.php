@@ -39,10 +39,9 @@
           <td><?= htmlspecialchars($pick['username']) ?></td>
           <td><?= htmlspecialchars($pick['team_name']) ?></td>
           <td>
-          <span
-            class="badge <?= skinSelect($pick['skin_select']); ?>">
-            <?= htmlspecialchars($pick['skin_select']) ?>
-          </span>
+            <span class="badge <?= skinSelect($pick['skin_select']); ?>">
+              <?= htmlspecialchars($pick['skin_select']) ?>
+            </span>
           </td>
           <td><?= htmlspecialchars($pick['season']) ?></td>
         </tr>
@@ -61,8 +60,7 @@
         // 		lastPickId = data.id;
         // 		console.log('New pick:', data);
         // 	}
-        console.log('Polling — latestId:', latestPick.id, 'lastPickId:',
-          lastPickId);
+        console.log('Polling — latestId:', latestPick.id, 'lastPickId:', lastPickId);
 
         if (latestPick.id && latestPick.id !== lastPickId) {
           lastPickId = latestPick.id;
@@ -78,7 +76,12 @@
       <td>${latestPick.id}</td>
       <td>${latestPick.username}</td>
       <td>${latestPick.team_name}</td>
-      <td>${latestPick.skin_select}</td>
+      <td>
+        <span class="badge ${latestPick.skin_select === 'wins' ? 'success' :
+            'danger'}">
+          ${latestPick.skin_select}
+        </span>
+      </td>
       <td>${latestPick.season}</td>
     `;
           tbody.appendChild(tr);
