@@ -82,11 +82,18 @@
 			");
     }
 
-    public static function getLatestPick(string $season) {
+    public static function getLatestPick(string $season): array|false {
       $db = self::db();
       $last_pick_stmt = $db->prepare("SELECT username FROM draft_picks WHERE season = ? ORDER BY id DESC LIMIT 1");
       $last_pick_stmt->execute([$season]);
       return $last_pick_stmt->fetch();
+    }
+
+    public static function getPickedTeams(string $season): array {
+      $db = self::db();
+      $picked_teams = $db->prepare("SELECT team_id FROM draft_picks WHERE season = ?");
+      $picked_teams->execute([$season]);
+      return $picked_teams->fetchAll(PDO::FETCH_COLUMN) ?? null;
     }
 
     public function saveDraftPick(int $team_id, string $season, string $username, string $skin_select):
