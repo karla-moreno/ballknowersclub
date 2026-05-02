@@ -1,6 +1,7 @@
 <?php
   declare(strict_types=1);
   require_once __DIR__ . '/../../../vendor/autoload.php';
+  global $season;
 
   use App\Enums\Season;
   use App\Services\SeasonService;
@@ -11,7 +12,7 @@
 
   $db = Database::connection();
 
-  $season_service = new SeasonService();
+  $SeasonService = new SeasonService();
   $date = new DateTimeImmutable();
   $current_username = htmlspecialchars(Auth::user()['username']);
   try {
@@ -42,7 +43,7 @@
     $stat = false;
   }
 
-  $daysLeft = $season_service->getDaysUntilEnd($season, $date);
+  $daysLeft = $SeasonService->getDaysUntilEnd($season, $date);
   //  dump($daysLeft);
 ?>
 <?php if ($stat): ?>
@@ -99,7 +100,7 @@
           <h4>Season completion</h4>
           <span
             class="badge outline">
-					<?= $season_service->getCompletion
+					<?= $SeasonService->getCompletion
           ($season, $date)->percent; ?>%
 				</span>
         </header>
@@ -113,7 +114,7 @@
           ?>
         </p>
         <meter
-          value="<?= $season_service->getCompletion($season, $date)
+          value="<?= $SeasonService->getCompletion($season, $date)
             ->raw; ?>"
           min="0" max="1" low="0" high="1"
           optimum="1"></meter>

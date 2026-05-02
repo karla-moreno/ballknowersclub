@@ -3,7 +3,6 @@
 
   use App\Auth\Auth;
   use App\Services\DraftService;
-  use App\Database\Database;
   use App\Enums\Season;
 
   if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -26,10 +25,10 @@
   $username = $session_user['username'];
 
   $draft_order = ['test', 'deadmau5', 'zombiekilla'];
-  $draft_season = Season::S25_26;
-  $draft_season_value = $draft_season->value;
+  $season = Season::S25_26;
+  $season_value = $season->value;
   $DraftService = new DraftService();
-  $last_pick = $DraftService::getLastDrafter($draft_season_value);
+  $last_pick = $DraftService::getLastDrafter($season_value);
 
   if (!$last_pick) {
     $current_drafter = $draft_order[0];
@@ -47,7 +46,7 @@
 
   $data = json_decode(file_get_contents('php://input'), true);
 
-  $picked_teams = $DraftService::getPickedTeams($draft_season_value);
+  $picked_teams = $DraftService::getPickedTeams($season_value);
 
   $team_id = $data['teamId'];
   $selection = $data['selection'];
@@ -76,7 +75,7 @@
     echo json_encode([
       'success' => true,
       'debug' => $last_pick,
-      'message' => "{$username} uses pick to select {$team_name}'s {$selection}",
+      'message' => "$username uses pick to select $team_name's $selection",
     ]);
   } catch (Exception $e) {
     http_response_code(500);
@@ -86,4 +85,3 @@
       'message' => 'Failed to save pick: ' . $e->getMessage(),
     ]);
   }
-?>

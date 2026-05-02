@@ -103,7 +103,7 @@
       $db = self::db();
       $picked_teams = $db->prepare("SELECT team_id FROM draft_picks WHERE season = ?");
       $picked_teams->execute([$season]);
-      return $picked_teams->fetchAll(PDO::FETCH_COLUMN) ?? null;
+      return $picked_teams->fetchAll(PDO::FETCH_COLUMN) ?? [];
     }
 
     public function saveDraftPick(int $team_id, string $season, string $username, string $skin_select):

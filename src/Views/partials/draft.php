@@ -1,12 +1,12 @@
 <?php
   declare(strict_types=1);
   require_once __DIR__ . '/../../../vendor/autoload.php';
+  global $season;
 
-  use App\Enums\Season;
   use function App\Helpers\getLogo;
   use function App\Helpers\skinSelect;
 
-  $picks = (new App\Services\DraftService)->getDraftPicks(Season::S25_26->value);
+  $picks = (new App\Services\DraftService)->getDraftPicks($season->value);
 ?>
 
 <section id="draft" class="section">
@@ -28,8 +28,13 @@
               <img style="margin-bottom: -4px"
                    src="<?= getLogo($pick['team_id']); ?>"
                    alt="<?= $pick['team_name']; ?> logo" height="20"/>
-              <span><code><strong><?= $pick['team_name'];
-                    ?></strong></code></span>
+              <span>
+                <code>
+                  <strong>
+                    <?= $pick['team_name']; ?>
+                  </strong>
+                </code>
+              </span>
             </div>
             and their <code
               style="color: var(--<?= skinSelect($pick['skin_select']); ?>);">

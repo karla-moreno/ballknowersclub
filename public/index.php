@@ -4,7 +4,6 @@
 
   use App\Enums\Season;
   use App\Services\SeasonService;
-  use Symfony\Component\VarDumper\VarDumper;
   use App\Auth\Auth;
 
   $title = 'Index';

@@ -6,7 +6,6 @@
 
   $DraftService = new DraftService();
   $picks = $DraftService->getDraftPicks($season->value);
-  dump($picks);
 ?>
 
 <div class="card" style="margin-bottom: 5em;">
