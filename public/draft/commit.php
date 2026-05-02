@@ -3,6 +3,8 @@
 
   use App\Auth\Auth;
   use App\Services\DraftService;
+  use App\Database\Database;
+  use App\Enums\Season;
 
   if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -23,15 +25,44 @@
 
   $username = $session_user['username'];
 
+  $draft_order = ['test', 'deadmau5', 'zombiekilla'];
+  $draft_season = Season::S25_26;
+  $draft_season_value = $draft_season->value;
+  $DraftService = new DraftService();
+  $last_pick = $DraftService::getLatestPick($draft_season_value);
+
+  if (!$last_pick) {
+    $current_drafter = $draft_order[0];
+  } else {
+    $last_index = array_search($last_pick['username'], $draft_order);
+    $current_drafter = $draft_order[($last_index + 1) % count($draft_order)];
+  }
+
+  if ($username !== $current_drafter) {
+    http_response_code(403);
+    header('Content-Type: application/json');
+    echo json_encode(['success' => false, 'message' => "It's not your turn."]);
+    exit;
+  }
+
   $data = json_decode(file_get_contents('php://input'), true);
 
-  $teamId = $data['teamId'];
+  $picked_teams = $DraftService::getPickedTeams($draft_season_value);
+
+  $team_id = $data['teamId'];
   $selection = $data['selection'];
   $season = $data['season'];
 
-  $teamName = $data['teamName'];
+  if (in_array($team_id, $picked_teams)) {
+    http_response_code(409);
+    header('Content-Type: application/json');
+    echo json_encode(['success' => false, 'debug' => $picked_teams, 'message' => 'This team has already been drafted.']);
+    exit;
+  }
 
-  if (!$teamId || !in_array($selection, ['wins', 'losses'], true)) {
+  $team_name = $data['teamName'];
+
+  if (!$team_id || !in_array($selection, ['wins', 'losses'], true)) {
     http_response_code(400);
     header('Content-Type: application/json');
     echo json_encode(['success' => false, 'message' => 'Invalid input.']);
@@ -39,13 +70,13 @@
   }
 
   try {
-    $draftService = new DraftService();
-    $draftService->saveDraftPick($teamId, $season, $username, $selection);
+    $DraftService->saveDraftPick($team_id, $season, $username, $selection);
     http_response_code(200);
     header('Content-Type: application/json');
     echo json_encode([
       'success' => true,
-      'message' => "{$username} uses pick to select {$teamName}'s {$selection}",
+      'debug' => $last_pick,
+      'message' => "{$username} uses pick to select {$team_name}'s {$selection}",
     ]);
   } catch (Exception $e) {
     http_response_code(500);
