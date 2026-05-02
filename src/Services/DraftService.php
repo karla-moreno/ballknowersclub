@@ -82,11 +82,21 @@
 			");
     }
 
-    public static function getLatestPick(string $season): array|false {
+    public static function getLastDrafter(string $season): array|false {
       $db = self::db();
       $last_pick_stmt = $db->prepare("SELECT username FROM draft_picks WHERE season = ? ORDER BY id DESC LIMIT 1");
       $last_pick_stmt->execute([$season]);
       return $last_pick_stmt->fetch();
+    }
+
+    public static function getLatestPick(): array|false {
+      $db = self::db();
+      return $db->query("
+        SELECT pick.*, team.name as team_name
+	      FROM draft_picks pick
+	      JOIN teams team ON pick.team_id = team.team_id
+	      ORDER BY pick.id DESC LIMIT 1
+      ")->fetch();
     }
 
     public static function getPickedTeams(string $season): array {

@@ -29,7 +29,7 @@
   $draft_season = Season::S25_26;
   $draft_season_value = $draft_season->value;
   $DraftService = new DraftService();
-  $last_pick = $DraftService::getLatestPick($draft_season_value);
+  $last_pick = $DraftService::getLastDrafter($draft_season_value);
 
   if (!$last_pick) {
     $current_drafter = $draft_order[0];
