@@ -3,6 +3,7 @@
 
   use App\Auth\Auth;
   use App\Services\DraftService;
+  use App\Services\NbaApiService;
   use App\Enums\Season;
 
   if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -28,7 +29,9 @@
   $season = Season::S25_26;
   $season_value = $season->value;
   $DraftService = new DraftService();
+  $NbaApiService = new NbaApiService();
   $last_pick = $DraftService::getLastDrafter($season_value);
+  $all_team_ids = $NbaApiService::allTeamIds();
 
   if (!$last_pick) {
     $current_drafter = $draft_order[0];
@@ -51,6 +54,13 @@
   $team_id = $data['teamId'];
   $selection = $data['selection'];
   $season = $data['season'];
+
+  if (!in_array($team_id, $all_team_ids)) {
+    http_response_code(400);
+    header('Content-Type: application/json');
+    echo json_encode(['success' => false, 'message' => 'Invalid team ID.']);
+    exit;
+  }
 
   if (in_array($team_id, $picked_teams)) {
     http_response_code(409);

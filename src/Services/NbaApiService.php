@@ -120,6 +120,11 @@
                  ->fetchAll();
     }
 
+    public static function allTeamIds(): array {
+      return self::db()->query("SELECT id FROM teams")
+                 ->fetchAll();
+    }
+
     public static function allTeamRecords(Season $season): array {
       $db = Database::connection();
       $stmt = $db->prepare("SELECT * FROM team_records WHERE season = :season ORDER BY wins DESC");

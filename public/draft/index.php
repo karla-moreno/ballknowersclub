@@ -47,11 +47,8 @@
   $current_user = $user['username'] ?? null;
 
   /* TODO:
-  * - protect against fellow engineers making post requests to commit.php
-  * --- endpoint or manipulating DOM
-  * - check if is current draft picker from commit.php and handle
-  * --- accordingly if not
   * - extract JS to TS, add vite?
+  * - reset/clear dialog errors when it has been reopened
   */
 
 ?>
