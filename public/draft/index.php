@@ -19,12 +19,11 @@
   ob_start();
 
   $draft_order = ['test', 'deadmau5', 'zombiekilla'];
-  $draft_season = Season::S25_26;
-  $draft_season_value = $draft_season->value;
+  $season = Season::S25_26;
   $DraftService = new DraftService();
 
   $picked_teams = $db->prepare("SELECT team_id FROM draft_picks WHERE season = ?");
-  $picked_teams->execute([$draft_season_value]);
+  $picked_teams->execute([$season->value]);
   $picked_teams = $picked_teams->fetchAll(PDO::FETCH_COLUMN) ?? null;
   // https://www.php.net/manual/en/pdostatement.fetchall.php
 
@@ -34,7 +33,7 @@
     $draft_complete = false;
   }
 
-  $last_pick = $DraftService::getLastDrafter($draft_season_value);
+  $last_pick = $DraftService::getLastDrafter($season->value);
 
   if (!$last_pick) {
     $current_drafter = $draft_order[0];
@@ -60,7 +59,7 @@
     <?php if ($draft_complete): ?>
       <div class="col-12" style="text-align: center;">
         <p style="font-weight: 800; font-size: 2em;">
-          <?= $draft_season->label(); ?> DRAFT COMPLETE
+          <?= $season->label(); ?> DRAFT COMPLETE
         </p>
       </div>
     <?php endif; ?>

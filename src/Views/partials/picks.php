@@ -1,17 +1,12 @@
 <?php
+  global $season;
 
-  use App\Database\Database;
+  use App\Services\DraftService;
   use function App\Helpers\skinSelect;
 
-  $db = Database::connection();
-  $picks = $db->query("
-    SELECT pick.*, team.name as team_name
-    FROM draft_picks pick
-    JOIN teams team ON pick.team_id = team.team_id
-    ORDER BY pick.id ASC
-	")->fetchAll();
-
-  //	dump($picks);
+  $DraftService = new DraftService();
+  $picks = $DraftService->getDraftPicks($season->value);
+  dump($picks);
 ?>
 
 <div class="card" style="margin-bottom: 5em;">
