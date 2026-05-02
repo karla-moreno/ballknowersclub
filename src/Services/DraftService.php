@@ -82,22 +82,19 @@
 			");
     }
 
-    public static function getLatestPick(Season $season): void {
-      //	$pick = self::db()->query("SELECT * FROM draft_picks ORDER BY id DESC LIMIT 1")->fetch();
-      $pick = self::db()->query("
-				SELECT pick.*, team.name as team_name
-    		FROM draft_picks pick
-    		JOIN teams team ON pick.team_id = team.team_id
-    		ORDER BY pick.id DESC LIMIT 1
-      ")->fetch();
+    public static function getLatestPick(string $season) {
+      $db = self::db();
+      $last_pick_stmt = $db->prepare("SELECT username FROM draft_picks WHERE season = ? ORDER BY id DESC LIMIT 1");
+      $last_pick_stmt->execute([$season]);
+      return $last_pick_stmt->fetch();
     }
 
-    public function saveDraftPick(int $teamId, string $season, string $username, string $skin_select):
+    public function saveDraftPick(int $team_id, string $season, string $username, string $skin_select):
     void {
       $db = Database::connection();
       $stmt = $db->prepare("INSERT INTO draft_picks (team_id, season, username, skin_select) VALUES (:team_id, :season, :username, :skin_select)");
       $stmt->execute([
-        ':team_id' => $teamId,
+        ':team_id' => $team_id,
         ':season' => $season,
         ':username' => $username,
         ':skin_select' => $skin_select

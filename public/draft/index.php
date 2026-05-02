@@ -21,6 +21,7 @@
   $draft_order = ['test', 'deadmau5', 'zombiekilla'];
   $draft_season = Season::S25_26;
   $draft_season_value = $draft_season->value;
+  $DraftService = new DraftService();
 
   $picked_teams = $db->prepare("SELECT team_id FROM draft_picks WHERE season = ?");
   $picked_teams->execute([$draft_season_value]);
@@ -33,9 +34,7 @@
     $draft_complete = false;
   }
 
-  $last_pick_stmt = $db->prepare("SELECT * FROM draft_picks WHERE season = ? ORDER BY id DESC LIMIT 1");
-  $last_pick_stmt->execute([$draft_season_value]);
-  $last_pick = $last_pick_stmt->fetch();
+  $last_pick = $DraftService::getLatestPick($draft_season_value);
 
   if (!$last_pick) {
     $current_drafter = $draft_order[0];
@@ -49,7 +48,6 @@
   $current_user = $user['username'] ?? null;
 
   /* TODO:
-  * - update table with JS when draft has started/no picks in db
   * - protect against fellow engineers making post requests to commit.php
   * --- endpoint or manipulating DOM
   * - check if is current draft picker from commit.php and handle
