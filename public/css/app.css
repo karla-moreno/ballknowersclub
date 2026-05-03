@@ -33,3 +33,18 @@ code strong {
 .row h2 {
     margin-bottom: 0;
 }
+
+@media (max-width: 767px) {
+    #draft-ui {
+        position: sticky;
+        top: 1em;
+        font-size: 14px;
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+    }
+
+    #draft-ui .card {
+        padding: .75em;
+        box-shadow: 5px 5px 20px 1px #000000;
+    }
+}

@@ -60,8 +60,8 @@
         </p>
       </div>
     <?php endif; ?>
-    <div class="col-5">
-      <div class="vstack" style="position: sticky; top: 0;">
+    <div id="draft-ui" class="col-5">
+      <div class="vstack" style="position: sticky; top: 1em;">
         <div class="card">
           <header>
             <h3>Draft order</h3>
@@ -77,7 +77,7 @@
             <?php } ?>
           </ol>
         </div>
-        <?php if (Auth::check()): ?>
+        <?php if (Auth::check() && !$draft_complete): ?>
           <div class="card" style="height: min-content; <?php if
           ($draft_complete): ?>opacity: 0.5;<?php endif; ?>">
             <header>

@@ -79,6 +79,7 @@
       <td>${latestPick.season}</td>
     `;
           tbody.appendChild(tr);
+          tr.scrollIntoView({ behavior: 'smooth', block: 'end' });
         }
       } catch (err) {
         console.error('Polling error:', err);
