@@ -4,8 +4,10 @@
 
   use App\Database\Database;
   use App\Services\DraftService;
+  use App\Enums\Season;
 
   $DraftService = new DraftService();
+  $current_season = Season::S25_26;
   try {
     $DraftService::createDraftTable();
   } catch (PDOException $e) {
@@ -13,7 +15,7 @@
   }
 
   try {
-    $latest_pick = $DraftService::getLatestPick();
+    $latest_pick = $DraftService::getLatestPick($current_season->value);
 
     echo json_encode($latest_pick ?: []);
   } catch (Exception $e) {

@@ -121,8 +121,8 @@
     }
 
     public static function allTeamIds(): array {
-      return self::db()->query("SELECT id FROM teams")
-                 ->fetchAll();
+      return self::db()->query("SELECT team_id FROM teams")->fetchAll
+      (PDO::FETCH_COLUMN);
     }
 
     public static function allTeamRecords(Season $season): array {
