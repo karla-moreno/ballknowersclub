@@ -48,18 +48,13 @@
 
     setInterval(async () => {
       try {
-        const res = await fetch('/draft/latest-pick.php');
+        const res = await fetch('/draft/latest-pick.php?season=<?=
+          $season->value ?>');
         const latestPick = await res.json();
-        // 	if (data.id && data.id !== lastPickId) {
-        // 		lastPickId = data.id;
-        // 		console.log('New pick:', data);
-        // 	}
-        console.log('Polling — latestId:', latestPick.id, 'lastPickId:', lastPickId);
 
         if (latestPick.id && latestPick.id !== lastPickId) {
           lastPickId = latestPick.id;
 
-          console.log(latestPick);
           if (document.getElementById('no-picks')) {
             document.getElementById('no-picks').remove();
           }
@@ -79,7 +74,7 @@
       <td>${latestPick.season}</td>
     `;
           tbody.appendChild(tr);
-          tr.scrollIntoView({ behavior: 'smooth', block: 'end' });
+          tr.scrollIntoView({behavior: 'smooth', block: 'end'});
         }
       } catch (err) {
         console.error('Polling error:', err);

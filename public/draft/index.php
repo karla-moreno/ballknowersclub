@@ -18,8 +18,8 @@
   $title = 'Draft';
   ob_start();
 
-  $draft_order = ['test', 'deadmau5', 'zombiekilla'];
-  $season = Season::S25_26;
+  $draft_order = ['test', 'zombiekilla'];
+  $season = Season::S26_27;
   $DraftService = new DraftService();
 
   $picked_teams = $db->prepare("SELECT team_id FROM draft_picks WHERE season = ?");
@@ -77,7 +77,7 @@
             <?php } ?>
           </ol>
         </div>
-        <?php if (Auth::check() && !$draft_complete): ?>
+        <?php if (Auth::check() && !$draft_complete && in_array($current_user, $draft_order)): ?>
           <div class="card" style="height: min-content; <?php if
           ($draft_complete): ?>opacity: 0.5;<?php endif; ?>">
             <header>
@@ -225,7 +225,7 @@
     // TODO: get this out of auth check
     setInterval(async () => {
       try {
-        const res = await fetch('/draft/latest-pick.php');
+        const res = await fetch('/draft/latest-pick.php?season=<?= $season->value ?>');
         const pick = await res.json();
 
         if (pick.id && pick.id !== lastQueuePickId) {

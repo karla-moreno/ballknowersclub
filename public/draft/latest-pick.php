@@ -6,8 +6,24 @@
   use App\Services\DraftService;
   use App\Enums\Season;
 
+  if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+    http_response_code(405);
+    header('Content-Type: application/json');
+    echo json_encode(['success' => false, 'message' => 'Method not allowed.']);
+    exit;
+  }
+
   $DraftService = new DraftService();
-  $current_season = Season::S25_26;
+  $season_param = $_GET['season'];
+  $current_season = Season::tryFrom($season_param);
+
+  if (!$current_season) {
+    http_response_code(400);
+    header('Content-Type: application/json');
+    echo json_encode(['success' => false, 'message' => 'Invalid season.']);
+    exit;
+  }
+
   try {
     $DraftService::createDraftTable();
   } catch (PDOException $e) {
