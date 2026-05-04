@@ -2,6 +2,7 @@
   declare(strict_types=1);
   require_once __DIR__ . '/../../../vendor/autoload.php';
   global $season;
+  global $date;
 
   use App\Enums\Season;
   use App\Services\SeasonService;
@@ -13,8 +14,12 @@
   $db = Database::connection();
 
   $SeasonService = new SeasonService();
-  $date = new DateTimeImmutable();
-  $current_username = htmlspecialchars(Auth::user()['username']);
+  if (Auth::user()) {
+    $current_username = htmlspecialchars(Auth::user()['username']);
+  } else {
+    $current_username = 'guest';
+  }
+
   try {
     $stat_stmt = $db->prepare("
       SELECT
@@ -44,6 +49,7 @@
   }
 
   $daysLeft = $SeasonService->getDaysUntilEnd($season, $date);
+  $daysLeftSeasonStart = $SeasonService->getDaysUntilStart($season, $date);
   //  dump($daysLeft);
 ?>
 <?php if ($stat): ?>
@@ -60,65 +66,135 @@
   ?>
   <section class="section">
     <div class="row">
-      <div class="col-12">
-        <h2 style="margin-bottom: 0;">Stats</h2>
-      </div>
-      <article class="card col-4">
-        <header class="hstack justify-between items-center">
-          <h4>Skins collected</h4>
-          <span class="badge <?= $percent_collected_color; ?>">
+      <?php if (Auth::check()): ?>
+        <div class="col-12">
+          <h2 style="margin-bottom: 0;">Stats</h2>
+        </div>
+        <article class="card col-4">
+          <header class="hstack justify-between items-center">
+            <h4>Skins collected</h4>
+            <span class="badge <?= $percent_collected_color; ?>">
 					  <?= $percent_collected . '%'; ?>
 				  </span>
-        </header>
-        <h2>
-          <?= $total_skins_collected; ?>
-        </h2>
-        <p class="text-light">
-          <?= 'of ' . $total_skins_possible . ' total possible (' . $total_picks . ' teams)'; ?>
-        </p>
-        <progress value="<?= $total_skins_collected; ?>"
-                  max="<?= $total_skins_possible; ?>"></progress>
-      </article>
+          </header>
+          <h2>
+            <?= $total_skins_collected; ?>
+          </h2>
+          <p class="text-light">
+            <?= 'of ' . $total_skins_possible . ' total possible (' . $total_picks . ' teams)'; ?>
+          </p>
+          <progress value="<?= $total_skins_collected; ?>"
+                    max="<?= $total_skins_possible; ?>"></progress>
+        </article>
 
-      <article class="card col-4">
-        <header class="hstack justify-between items-center">
-          <h4>Ranking</h4>
-          <span class="badge success"><?= $user_rank['rank']; ?></span>
-        </header>
-        <h2>You are #<?= $user_rank['rank']; ?></h2>
-        <p class="text-light">
-          <?= BallKnower::status($user_rank['rank']); ?>
-        </p>
-        <meter
-          min="1"
-          value="<?= count($ranks) - $user_rank['rank'] + 1; ?>"
-          max="<?= count($ranks); ?>"></meter>
-      </article>
+        <article class="card col-4">
+          <header class="hstack justify-between items-center">
+            <h4>Ranking</h4>
+            <span class="badge success"><?= $user_rank['rank']; ?></span>
+          </header>
+          <h2>You are #<?= $user_rank['rank']; ?></h2>
+          <p class="text-light">
+            <?= BallKnower::status($user_rank['rank']); ?>
+          </p>
+          <meter
+            min="1"
+            value="<?= count($ranks) - $user_rank['rank'] + 1; ?>"
+            max="<?= count($ranks); ?>"></meter>
+        </article>
 
-      <article class="card col-4">
-        <header class="hstack justify-between items-center">
-          <h4>Season completion</h4>
-          <span
-            class="badge outline">
+        <article class="card col-4">
+          <header class="hstack justify-between items-center">
+            <h4>Season completion</h4>
+            <span
+              class="badge outline">
 					<?= $SeasonService->getCompletion
           ($season, $date)->percent; ?>%
 				</span>
+          </header>
+          <h2>
+            <?= ($daysLeft > 0) ? $daysLeft . ' days' : 'Season ended'; ?>
+          </h2>
+          <p class="text-light">
+            <?= $daysLeft > 0 ?
+              'Until season ends' :
+              abs($daysLeft) . ' days ago';
+            ?>
+          </p>
+          <meter
+            value="<?= $SeasonService->getCompletion($season, $date)
+              ->raw; ?>"
+            min="0" max="1" low="0" high="1"
+            optimum="1"></meter>
+        </article>
+      <?php endif; ?>
+    </div>
+  </section>
+  <hr/>
+<?php else: ?>
+  <section class="section">
+    <div class="row">
+      <article class="card col-4" style="display: flex; flex-direction:
+      column;">
+        <header class="hstack justify-between items-center">
+          <h4>Draft has not begun</h4>
+          <span class="badge warning">
+					  <?= $SeasonService->getSeasonDraftDay($season, true); ?>
+				  </span>
         </header>
         <h2>
-          <?= ($daysLeft > 0) ? $daysLeft . ' days' : 'Season ended'; ?>
+          <?= $SeasonService->getDaysDraftUntilStart($season, $date) ?> days
+        </h2>
+        <p class="text-light">
+          Until draft begins
+        </p>
+        <progress style="margin-top: auto;" value=".5"
+                  max="1"></progress>
+      </article>
+
+      <article class="card col-4" style="display: flex; flex-direction:
+      column;">
+        <header class="hstack justify-between items-center">
+          <h4>Season begins</h4>
+          <span
+            class="badge outline">
+					<?= $SeasonService->getSeasonStart($season, true); ?>
+				</span>
+        </header>
+        <h2>
+          <?= ($daysLeftSeasonStart > 0) ? $daysLeftSeasonStart . ' days' : 'Season underway'; ?>
         </h2>
         <p class="text-light">
           <?= $daysLeft > 0 ?
-            'Until season ends' :
+            'Until season starts' :
             abs($daysLeft) . ' days ago';
           ?>
         </p>
         <meter
+          style="margin-top: auto;"
           value="<?= $SeasonService->getCompletion($season, $date)
             ->raw; ?>"
           min="0" max="1" low="0" high="1"
           optimum="1"></meter>
       </article>
+
+      <article class="card col-4">
+        <header class="hstack justify-between items-center">
+          <h4>Draft order</h4>
+          <span
+            class="badge outline">
+					TBD
+				</span>
+        </header>
+        <!--        <h2>-->
+        <!--          --><?php //= ($daysLeftSeasonStart > 0) ? $daysLeftSeasonStart . ' days' : 'Season underway'; ?>
+        <!--        </h2>-->
+        <ul class="text-light" style="margin-top: .5em; margin-bottom: 0;">
+          <?php for ($i = 1; $i <= 6; $i++): ?>
+            <li><?= str_repeat('.', $i); ?></li>
+          <?php endfor; ?>
+        </ul>
+      </article>
     </div>
   </section>
+  <hr/>
 <?php endif; ?>
