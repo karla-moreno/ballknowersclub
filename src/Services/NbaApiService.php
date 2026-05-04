@@ -41,8 +41,10 @@
       return json_decode($response, true);
     }
 
-    public static function getRawSeasonStandingsFromApi(): array {
-      $BASE_URL = "https://stats.nba.com/stats/leaguestandingsv3?GroupBy=conf&LeagueID=00&Season=2025-26&SeasonType=Regular%20Season&Section=overall";
+    public static function getRawSeasonStandingsFromApi(Season $season):
+    array {
+      $api_season = "20" . $season->value;
+      $BASE_URL = "https://stats.nba.com/stats/leaguestandingsv3?GroupBy=conf&LeagueID=00&Season=$api_season&SeasonType=Regular%20Season&Section=overall";
       $options = [
         "http" => [
           "method" => "GET",
@@ -54,9 +56,6 @@
             "Connection: keep-alive",
             "Referer: https://www.nba.com/",
             "Origin: https://www.nba.com",
-            "Sec-Fetch-Dest: empty",
-            "Sec-Fetch-Mode: cors",
-            "Sec-Fetch-Site: same-site"
           ])
         ]
       ];
@@ -65,7 +64,7 @@
       if ($response === FALSE) {
         return ["ERROR"];
       } else {
-        $tempFile = __DIR__ . '/../../temp/nba-temp-initial-raw.json';
+        $tempFile = __DIR__ . "/../../temp/nba-$season->value.json";
         file_put_contents($tempFile, $response);
         return json_decode($response, true);
       }
@@ -96,18 +95,18 @@
       $db->commit();
     }
 
-    public function seedRecords(): void {
+    public function seedRecords(Season $season): void {
       self::createTeamRecordsTable();
       $data = self::getRawSeasonStandingsFromTempData();
       $rows = $data['resultSets'][0]['rowSet'];
       $db = Database::connection();
       $db->beginTransaction();
-      $db->exec("DELETE FROM team_records WHERE *");
+      $db->exec("DELETE FROM team_records");
       $stmt = $db->prepare("INSERT INTO team_records (team_id, season, wins, losses) VALUES (:team_id, :season, :wins, :losses)");
       foreach ($rows as $row) {
         $stmt->execute([
           ':team_id' => $row[2],
-          ':season' => Season::S25_26->value,
+          ':season' => $season->value,
           ':wins' => $row[13],
           ':losses' => $row[14]
         ]);
