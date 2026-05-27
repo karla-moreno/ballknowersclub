@@ -1,6 +1,7 @@
 <?php
   declare(strict_types=1);
   require_once __DIR__ . '/../../../vendor/autoload.php';
+  global $season;
 
   use App\Auth\Auth;
   use App\Database\Database;
@@ -13,7 +14,7 @@
   //    FROM draft_picks pick
   //    JOIN teams team ON pick.team_id = team.team_id
   //	")->fetchAll();
-  $test = $db->query("
+  $test = $db->prepare("
 		SELECT pick.*, team.name as team_name, team_record.wins, team_record.losses,
 			CASE 
 				WHEN pick.skin_select = 'wins' THEN team_record.wins
@@ -22,8 +23,15 @@
 		FROM draft_picks pick
 		JOIN teams team ON pick.team_id = team.team_id
 		JOIN team_records team_record ON pick.team_id = team_record.team_id
-	")->fetchAll();
+		WHERE pick.season = ? AND team_record.season = ?
+	");
+  $test->execute([
+    $season->value,
+  ]);
+  $test = $test->fetchAll();
+
   $grouped = [];
+
   foreach ($test as $pick) {
     $grouped[$pick['username']][] = $pick;
   }
