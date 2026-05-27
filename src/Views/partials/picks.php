@@ -29,7 +29,7 @@
     <?php else: ?>
       <?php foreach ($picks as $i => $pick): ?>
         <tr>
-          <td><?= $i + 1 ?></td>
+          <td><?= $pick['pick_number']; ?></td>
           <td><?= htmlspecialchars($pick['username']) ?></td>
           <td><?= htmlspecialchars($pick['team_name']) ?></td>
           <td>
@@ -62,7 +62,7 @@
           const tr = document.createElement('tr');
 
           tr.innerHTML = `
-      <td>${latestPick.id}</td>
+      <td>${latestPick.pick_number}</td>
       <td>${latestPick.username}</td>
       <td>${latestPick.team_name}</td>
       <td>
