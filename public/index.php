@@ -10,17 +10,14 @@
   ob_start();
 
   $season_service = new SeasonService();
-  $season = Season::S25_26;
+  $season = Season::S26_27;
   $date = new DateTimeImmutable();
 ?>
 
   <h1>Welcome to Skins <?= $season->label(); ?></h1>
 
   <div class="">
-    <?php if (Auth::check()): ?>
-      <?php include __DIR__ . '/../src/Views/partials/stats.php'; ?>
-      <hr/>
-    <?php endif; ?>
+    <?php include __DIR__ . '/../src/Views/partials/stats.php'; ?>
     <?php include __DIR__ . '/../src/Views/partials/leaderboard.php'; ?>
     <?php include __DIR__ . '/../src/Views/partials/totals.php'; ?>
     <?php include __DIR__ . '/../src/Views/partials/standings.php'; ?>
