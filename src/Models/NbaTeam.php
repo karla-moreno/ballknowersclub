@@ -62,7 +62,15 @@
     //		}
 
     public static function allStandings(Season $season): array {
-      $stmt = self::db()->prepare("
+      $db = self::db();
+      $check_season_exists_in_team_records = $db->prepare("
+        SELECT COUNT(*) FROM team_records WHERE season = :season
+      ");
+      $check_season_exists_in_team_records->execute([':season' => $season->value]);
+      $has_records = (int)$check_season_exists_in_team_records->fetchColumn
+        () > 0;
+      if ($has_records) {
+        $stmt = self::db()->prepare("
           SELECT record.*, team.name, team.slug, team.team_id, pick.username, pick.skin_select, pick.id, pick.pick_number as draft_pick_id,   
             CASE              
             	WHEN pick.skin_select = 'wins' THEN record.wins
@@ -74,7 +82,20 @@
   record.season
           WHERE record.season = :season
       ");
+        $stmt->execute([':season' => $season->value]);
+        return $stmt->fetchAll();
+      }
+
+      $stmt = $db->prepare("
+        SELECT 0 as wins, 0 as losses, 
+               team.name, team.slug, team.team_id,
+               pick.username, pick.skin_select, pick.id, pick.pick_number as draft_pick_id,
+               0 as skins
+        FROM teams team
+        LEFT JOIN draft_picks pick ON pick.team_id = team.team_id AND pick.season = :season
+         ");
       $stmt->execute([':season' => $season->value]);
       return $stmt->fetchAll();
+
     }
   }
