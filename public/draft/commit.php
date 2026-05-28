@@ -2,6 +2,7 @@
   require_once __DIR__ . '/../../src/Services/DraftService.php';
 
   use App\Auth\Auth;
+  use App\Services\DraftConfigService;
   use App\Services\DraftService;
   use App\Services\NbaApiService;
   use App\Enums\Season;
@@ -24,14 +25,19 @@
   }
 
   $username = $session_user['username'];
-
-  $draft_order = ['test', 'deadmau5', 'zombiekilla'];
-  $season = Season::S25_26;
+  $DraftConfigService = new DraftConfigService();
+  $season = Season::S26_27;
   $season_value = $season->value;
   $DraftService = new DraftService();
   $NbaApiService = new NbaApiService();
   $last_pick = $DraftService::getLastDrafter($season_value);
   $all_team_ids = $NbaApiService::allTeamIds();
+  
+  try {
+    $draft_order = $DraftConfigService->getDraftOrder($season->value);
+  } catch (Exception $e) {
+    $draft_order = [];
+  }
 
   if (!$last_pick) {
     $current_drafter = $draft_order[0];
