@@ -1,14 +1,16 @@
 <?php
   declare(strict_types=1);
   require_once __DIR__ . '/../../../vendor/autoload.php';
+  global $season;
 
   use App\Models\NBATeam;
-  use App\Enums\Season;
   use function App\Helpers\getLogo;
   use function App\Helpers\skinSelect;
 
-  $standings = NbaTeam::allStandings(Season::S25_26);
-  usort($standings, fn($a, $b) => $b['skins'] <=> $a['skins']);
+  $standings = NbaTeam::allStandings($season);
+  usort($standings, fn($a, $b) => ($b['skins'] <=> $a['skins']) ?: ($a['name'] <=> $b['name'])
+  );
+
 ?>
 
 <section id="standings" class="section">
