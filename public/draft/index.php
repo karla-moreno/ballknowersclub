@@ -5,6 +5,7 @@
 
   use App\Auth\Auth;
   use App\Database\Database;
+  use App\Services\DraftConfigService;
   use App\Services\DraftService;
   use App\Services\NbaApiService;
   use App\Enums\Season;
@@ -18,9 +19,16 @@
   $title = 'Draft';
   ob_start();
 
-  $draft_order = ['test', 'zombiekilla'];
   $season = Season::S26_27;
   $DraftService = new DraftService();
+  $DraftConfigService = new DraftConfigService();
+
+  $drafters = $DraftConfigService->getDrafters($season->value);
+  try {
+    $draft_order = $DraftConfigService->getDraftOrder($season->value);
+  } catch (Exception $e) {
+    $draft_order = [];
+  }
 
   $picked_teams = $db->prepare("SELECT team_id FROM draft_picks WHERE season = ?");
   $picked_teams->execute([$season->value]);
@@ -324,7 +332,7 @@
         teamName: teamName,
         selection,
         username: '<?= htmlspecialchars($user['username']); ?>',
-        season: '<?= Season::S25_26->value; ?>'
+        season: '<?= $season->value; ?>'
       };
     });
 
