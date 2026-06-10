@@ -2,12 +2,14 @@
   declare(strict_types=1);
   require_once __DIR__ . '/../../../vendor/autoload.php';
 
+  global $season;
+
   use App\Database\Database;
   use function App\Helpers\GetLogo;
 
   $db = Database::connection();
   try {
-    $draftPicksWithRecords = $db->query("
+    $draftPicksWithRecordsStmt = $db->prepare("
 		SELECT pick.*, team.name as team_name, team_record.wins, team_record.losses,
 			CASE 
 					WHEN pick.skin_select = 'wins' THEN team_record.wins
@@ -16,7 +18,10 @@
 		FROM draft_picks pick
 		JOIN teams team ON pick.team_id = team.team_id
 		JOIN team_records team_record ON pick.team_id = team_record.team_id
-	")->fetchAll();
+		WHERE pick.season = ?
+	");
+    $draftPicksWithRecordsStmt->execute([$season->value]);
+    $draftPicksWithRecords = $draftPicksWithRecordsStmt->fetchAll();
     $grouped = [];
     $grouped = array_reduce($draftPicksWithRecords,
       function ($carry, $pick) {
