@@ -3,7 +3,7 @@
   require_once __DIR__ . '/../../../vendor/autoload.php';
   global $season;
 
-  use App\Models\NBATeam;
+  use App\Models\NbaTeam;
   use function App\Helpers\getLogo;
   use function App\Helpers\skinSelect;
 
