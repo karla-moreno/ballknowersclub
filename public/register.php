@@ -40,12 +40,15 @@
         }
       }
     }
-  } else {
+  }
+
+  if ($_SERVER['REQUEST_METHOD'] != "GET" && $_SERVER['REQUEST_METHOD'] != "POST") {
     http_response_code(405);
     header('Content-Type: application/json');
     echo json_encode(['success' => false, 'message' => 'Method not allowed.']);
     exit;
   }
+
   $title = 'Register';
   $teams = (new NbaApiService)::allTeams();
   // TODO: create reset password page

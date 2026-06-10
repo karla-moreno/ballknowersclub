@@ -30,7 +30,6 @@
 
       $_SESSION['user'] = [
         'id' => $row['id'],
-        'name' => $row['name'],
         'username' => $row['username'],
         'role' => $row['role'],
       ];

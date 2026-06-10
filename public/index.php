@@ -5,6 +5,7 @@
   use App\Enums\Season;
   use App\Services\SeasonService;
   use App\Auth\Auth;
+  use App\Services\DraftConfigService;
 
   $title = 'Index';
   ob_start();
@@ -12,6 +13,9 @@
   $season_service = new SeasonService();
   $season = Season::S26_27;
   $date = new DateTimeImmutable();
+  $DraftConfig = new DraftConfigService();
+  $draft_config_for_season = $DraftConfig->getDraftConfig($season->value);
+  //  dump($draft_config_for_season);
 ?>
 
   <h1>Welcome to Skins <?= $season->label(); ?></h1>
