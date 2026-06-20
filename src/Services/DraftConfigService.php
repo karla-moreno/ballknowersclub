@@ -56,6 +56,7 @@
       $db = self::db();
       $stmt = $db->prepare("SELECT drafters FROM draft_config WHERE season = ?");
       $stmt->execute([$season]);
+      // TODO: https://www.php.net/manual/en/pdostatement.fetchcolumn.php
       $result = $stmt->fetchColumn();
 
       if ($result !== false) {
@@ -71,11 +72,13 @@
       $db = self::db();
       $stmt = $db->prepare("SELECT draft_order FROM draft_config WHERE season = ?");
       $stmt->execute([$season]);
-      if (!$stmt->fetchColumn()) {
+      $result = $stmt->fetchColumn();
+      if ($result === false) {
         error_log('No drafters found for season ' . $season);
         return [];
       }
-      return json_decode($stmt->fetchColumn()) ?? [];
+
+      return json_decode($result);
     }
 
     public function saveDraftOrder(string $season, array $draft_order):
@@ -89,5 +92,20 @@
         ':season' => $season,
         ':draft_order' => json_encode($draft_order),
       ]);
+    }
+
+    public function getDraftConfig(string $season) {
+      self::createDraftConfigTable();
+      $db = self::db();
+      $db->prepare("
+        INSERT INTO draft_config (season, drafters, draft_order) 
+        VALUES (:season, '[]', '[]')
+        ON CONFLICT (season) DO NOTHING;
+      ")->execute([':season' => $season]);
+
+      $stmt = $db->prepare("SELECT * FROM draft_config WHERE season = ?");
+      $stmt->execute([$season]);
+      return $stmt->fetch();
+
     }
   }

@@ -5,10 +5,12 @@
 
   use App\Auth\Auth;
   use App\Database\Database;
+  use App\Services\DraftService;
   use function App\Helpers\GetLogo;
   use function App\Helpers\skinSelect;
 
   $db = Database::connection();
+  DraftService::createDraftTable();
   //	$picks = $db->query("
   //    SELECT pick.*, team.name as team_name
   //    FROM draft_picks pick
@@ -26,6 +28,7 @@
 		WHERE pick.season = ? AND team_record.season = ?
 	");
   $test->execute([
+    $season->value,
     $season->value,
   ]);
   $test = $test->fetchAll();

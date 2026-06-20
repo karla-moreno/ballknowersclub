@@ -26,7 +26,6 @@
   <article class="card">
     <header>
       <h1>Login</h1>
-      <p class="text-light">Get skinned, brother</p>
     </header>
 
     <div class="mt-4">

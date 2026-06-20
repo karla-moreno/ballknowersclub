@@ -15,6 +15,7 @@
   if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');
     $password = $_POST['password'] ?? '';
+    $favorite_team = $_POST['favorite_team'] ?? '';
 
     if (empty($password) || strlen($password) < 8) {
       $errors[] = 'Password must be at least 8 characters.';
@@ -25,6 +26,7 @@
         $password = $_POST['password'];
         $user = new User($username);
         $user->setPassword($password);
+        $user->setFavoriteTeam((int)$favorite_team);
         $user->save();
 
         Auth::login($username, $password);
@@ -88,10 +90,10 @@
         <input type="password" name="password" required>
       </label>
 
-      <!-- TODO: link favorite team to db and model, use for 2fa-->
+      <!-- TODO: link favorite team for 2fa-->
       <div data-field>
         <label>Favorite team</label>
-        <select aria-label="Select an option">
+        <select aria-label="Select an option" name="favorite_team" required>
           <option value="">Select an option</option>
           <?php foreach ($teams as $team): ?>
             <option value="<?= $team['team_id'] ?>">
