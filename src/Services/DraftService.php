@@ -35,7 +35,7 @@
       $db->beginTransaction();
       $db->exec("DELETE FROM draft_picks");
       $db->exec("DELETE FROM sqlite_sequence WHERE name='draft_picks'");
-      $stmt = $db->prepare("INSERT INTO draft_picks (team_id, season, username, skin_select, pick_number VALUES (:team_id, :season, :username, :skin_select, :pick_number)");
+      $stmt = $db->prepare("INSERT INTO draft_picks (team_id, season, username, skin_select, pick_number) VALUES (:team_id, :season, :username, :skin_select, :pick_number)");
 
       foreach ($rows as $row) {
         do {
