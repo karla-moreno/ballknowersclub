@@ -3,8 +3,11 @@
 
   require_once __DIR__ . '/../../vendor/autoload.php';
 
-
+  use App\Auth\Auth;
   use App\Services\DraftConfigService;
+
+  Auth::start();
+  Auth::requireRole('admin', 'user');
 
   $season = $_POST['season'];
   $username = $_POST['username'];
