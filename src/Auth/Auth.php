@@ -13,6 +13,7 @@
         session_start([
           'cookie_secure' => isset($_SERVER['HTTPS']),
           'cookie_httponly' => true,
+          'cookie_samesite' => 'Lax',
         ]);
       }
     }
@@ -33,7 +34,7 @@
         'username' => $row['username'],
         'role' => $row['role'],
       ];
-
+      session_regenerate_id(true);
       return true;
     }
 

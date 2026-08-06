@@ -5,7 +5,6 @@ composer.lock
 # Environment
 .env
 .env.local
-.env.*.local
 
 # IDE
 .idea/
@@ -24,3 +23,4 @@ composer.lock
 /storage
 *.sqlite
 */seed/*
+*local*
