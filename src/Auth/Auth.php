@@ -65,14 +65,15 @@
       }
     }
 
-    public static function requireRole(string $role): void {
+    public static function requireRole(string ...$roles): void {
       self::start();
 
       if (!self::check()) {
-        exit;
+        http_response_code(401);
+        exit('Forbidden');
       }
 
-      if (self::role() !== $role) {
+      if (!in_array(self::role(), $roles, true)) {
         http_response_code(403);
         exit('Forbidden');
       }
