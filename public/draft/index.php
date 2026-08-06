@@ -9,6 +9,10 @@
   use App\Services\DraftService;
   use App\Services\NbaApiService;
   use App\Enums\Season;
+  use App\Services\SeasonService;
+
+  $season_service = new SeasonService();
+  $season = Season::S26_27;
 
   DraftService::createDraftTable();
 
@@ -19,7 +23,6 @@
   $title = 'Draft';
   ob_start();
 
-  $season = Season::S26_27;
   $DraftService = new DraftService();
   $DraftConfigService = new DraftConfigService();
 
@@ -27,6 +30,7 @@
   try {
     $draft_order = $DraftConfigService->getDraftOrder($season->value);
   } catch (Exception $e) {
+    // TODO: handle error/add to logs
     $draft_order = [];
   }
 
@@ -44,7 +48,7 @@
   $last_pick = $DraftService::getLastDrafter($season->value);
 
   if (!$last_pick) {
-    $current_drafter = $draft_order[0];
+    $current_drafter = $draft_order !== [] ? htmlspecialchars($draft_order[0]) : null;
   } else {
     $last_pick_username = $last_pick['username'];
     $last_drafter_index = array_search($last_pick_username, $draft_order);
@@ -52,7 +56,7 @@
         $draft_order) + 1) % count($draft_order)] ?? $draft_order[0];
   }
 
-  $current_user = $user['username'] ?? null;
+  $current_user = $user !== null ? htmlspecialchars($user['username']) : null;
 
   /* TODO:
   * - extract JS to TS, add vite?
@@ -61,6 +65,23 @@
 
 ?>
   <div class="row">
+    <?php if ($draft_order === []): ?>
+      <div class="col-12" style="text-align: center;">
+        <h1>Draft will begin on
+          <span
+            style="color: #c2fe0b">
+            <?php echo
+            $season_service->getSeasonDraftDay($season, true);
+            ?>
+          </span>
+        </h1>
+        <h2>Lottery will be drawn on
+          <span style="color: #59b41d;">
+            TBD
+          </span>
+        </h2>
+      </div>
+    <?php endif; ?>
     <?php if ($draft_complete): ?>
       <div class="col-12" style="text-align: center;">
         <p style="font-weight: 800; font-size: 2em;">
@@ -75,7 +96,8 @@
             <h3>Draft order</h3>
           </header>
           <ol id="draft-order">
-            <?php foreach ($draft_order as $index => $drafter) { ?>
+            <?php foreach ($draft_order as $index => $drafter) {
+              $drafter = htmlspecialchars($drafter); ?>
               <li data-drafter="<?= $drafter; ?>">
                 <?= $drafter; ?>
                 <?= !$draft_complete && $drafter === $current_drafter ?
