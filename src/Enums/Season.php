@@ -20,4 +20,8 @@
         Season::S26_27 => '2026-2027',
       };
     }
+
+    public function currentEspnYear(): int {
+      return (int)("20" . substr($this->value, -2));
+    }
   }

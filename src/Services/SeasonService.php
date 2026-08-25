@@ -50,7 +50,8 @@
     DateTimeImmutable|string {
       $date = $this->getSeasonDates($season)->start;
       if ($formatted) {
-        $date = $date->format('Y-m-d');
+        return $this->makeDate(self::SEASONS[$season->value]['start'])
+                    ->format('M j, Y');
       }
       return $date;
     }

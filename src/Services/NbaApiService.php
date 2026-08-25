@@ -20,7 +20,7 @@
       return Database::connection();
     }
 
-    public static function getTeams(): array {
+    public static function getBallDontLieApiTeams(): array {
       $BASE_URL = "https://api.balldontlie.io";
       $API_KEY = $_ENV['API_KEY'];
       $endpoint = "/nba/v1/teams";
@@ -52,13 +52,14 @@
             "Host: stats.nba.com",
             "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.6 Safari/605.1.15",
             "Accept: */*",
-            "Accept-Language: en-US,en;q=0.9",
+            "Accept-Language: en-US,en;q=0.1",
             "Connection: keep-alive",
             "Referer: https://www.nba.com/",
             "Origin: https://www.nba.com",
           ])
         ]
       ];
+      $start_time = microtime(true);
       $context = stream_context_create($options);
       $response = file_get_contents($BASE_URL, false, $context);
       if ($response === FALSE) {
@@ -66,6 +67,27 @@
       } else {
         $tempFile = __DIR__ . "/../../temp/nba-$season->value.json";
         file_put_contents($tempFile, $response);
+        $end_time = microtime(true);
+        $elapsed_time = $end_time - $start_time;
+        error_log("Elapsed time: $elapsed_time seconds");
+        return json_decode($response, true);
+      }
+    }
+
+    public static function getRawSeasonStandingsFromApiEspn(int $season):
+    array {
+      $BASE_URL = "https://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/seasons/$season/types/2/groups/7/standings/0?lang=en&region=us";
+
+      $start_time = microtime(true);
+      $response = file_get_contents($BASE_URL);
+      if ($response === FALSE) {
+        return ["ERROR"];
+      } else {
+        // $tempFile = __DIR__ . "/../../temp/nba-$season->value.json";
+        // file_put_contents($tempFile, $response);
+        $end_time = microtime(true);
+        $elapsed_time = $end_time - $start_time;
+        error_log("Elapsed time: $elapsed_time seconds");
         return json_decode($response, true);
       }
     }
@@ -151,7 +173,8 @@
 			    id INTEGER PRIMARY KEY AUTOINCREMENT,
 			    team_id BIGINT UNSIGNED NOT NULL UNIQUE,
 			    name TEXT NOT NULL,
-			    slug TEXT NOT NULL UNIQUE
+			    slug TEXT NOT NULL UNIQUE,
+			    espn_id INTEGER DEFAULT NULL
 				)
 			");
     }
