@@ -6,10 +6,12 @@
   use App\Services\DraftService;
   use App\Services\NbaApiService;
   use App\Enums\Season;
+  use App\Logging\Logger;
 
   if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     header('Content-Type: application/json');
+    Logger::instance()->error('Rejected non-POST request to commit.php');
     echo json_encode(['success' => false, 'message' => 'Method not allowed.']);
     exit;
   }
@@ -20,6 +22,7 @@
   if (!$session_user) {
     http_response_code(401);
     header('Content-Type: application/json');
+    Logger::instance()->error('Rejected unauthorized request to commit.php');
     echo json_encode(['success' => false, 'message' => 'Unauthorized.']);
     exit;
   }
@@ -32,7 +35,7 @@
   $NbaApiService = new NbaApiService();
   $last_pick = $DraftService::getLastDrafter($season_value);
   $all_team_ids = $NbaApiService::allTeamIds();
-  
+
   try {
     $draft_order = $DraftConfigService->getDraftOrder($season->value);
   } catch (Exception $e) {
@@ -49,6 +52,13 @@
   if ($username !== $current_drafter) {
     http_response_code(403);
     header('Content-Type: application/json');
+    Logger::instance()->warning("Rejected out of turn request.", [
+      'username' => $username,
+      'current_drafter' => $current_drafter,
+      'season' => $season_value,
+      'last_pick' => $last_pick,
+      'draft_order' => $draft_order,
+    ]);
     echo json_encode(['success' => false, 'message' => "It's not your turn."]);
     exit;
   }
@@ -64,6 +74,12 @@
   if (!in_array($team_id, $all_team_ids)) {
     http_response_code(400);
     header('Content-Type: application/json');
+    Logger::instance()->warning("Invalid team ID.", [
+      'team_id' => $team_id,
+      'season' => $season,
+      'username' => $username,
+      'selection' => $selection,
+    ]);
     echo json_encode(['success' => false, 'message' => 'Invalid team ID.']);
     exit;
   }
@@ -71,6 +87,12 @@
   if (in_array($team_id, $picked_teams)) {
     http_response_code(409);
     header('Content-Type: application/json');
+    Logger::instance()->warning("Team already drafted.", [
+      'team_id' => $team_id,
+      'season' => $season,
+      'username' => $username,
+      'selection' => $selection,
+    ]);
     echo json_encode(['success' => false, 'debug' => $picked_teams, 'message' => 'This team has already been drafted.']);
     exit;
   }
@@ -80,6 +102,13 @@
   if (!$team_id || !in_array($selection, ['wins', 'losses'], true)) {
     http_response_code(400);
     header('Content-Type: application/json');
+    Logger::instance()->warning("Invalid input.", [
+      'team_id' => $team_id,
+      'season' => $season,
+      'username' => $username,
+      'selection' => $selection,
+      'team_name' => $team_name,
+    ]);
     echo json_encode(['success' => false, 'message' => 'Invalid input.']);
     exit;
   }
@@ -88,16 +117,29 @@
     $DraftService->saveDraftPick($team_id, $season, $username, $selection);
     http_response_code(200);
     header('Content-Type: application/json');
+    Logger::instance()->info("Pick saved.", [
+      'team_id' => $team_id,
+      'season' => $season,
+      'username' => $username,
+      'selection' => $selection,
+    ]);
     echo json_encode([
       'success' => true,
       'debug' => $last_pick,
       'message' => "$username uses pick to select $team_name's $selection",
     ]);
   } catch (Exception $e) {
+    $error_id = bin2hex(random_bytes(8));
     http_response_code(500);
     header('Content-Type: application/json');
+    Logger::instance()->error("Failed to save pick.", [
+      'id' => $error_id,
+      'message' => $e->getMessage(),
+      'file' => $e->getFile(),
+      'line' => $e->getLine(),
+    ]);
     echo json_encode([
       'success' => false,
-      'message' => 'Failed to save pick: ' . $e->getMessage(),
+      'message' => "Failed to save pick. Error ID: $error_id",
     ]);
   }
