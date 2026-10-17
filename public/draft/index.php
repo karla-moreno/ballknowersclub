@@ -65,8 +65,8 @@
 
 ?>
   <div class="row">
-    <?php if ($draft_order === [] || count($draft_order) != 5 || count
-      ($draft_order) != 6): ?>
+    <?php if (count($draft_order) != 5 || 6):
+      ?>
       <div class="col-12" style="text-align: center;">
         <p style="font-size: 1.5rem;">
           Draft is unavailable: Minimum number of drafters not met</p>
