@@ -32,7 +32,7 @@ jobs:
 
       - name: Deploy via rsync
         run: |
-          rsync -azP --delete \
+          rsync -azP --delete --no-owner --no-group \
             --exclude '.git/' \
             --exclude 'tests/' \
             --exclude '.github/' \
