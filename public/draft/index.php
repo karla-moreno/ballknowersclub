@@ -65,21 +65,11 @@
 
 ?>
   <div class="row">
-    <?php if ($draft_order === []): ?>
+    <?php if ($draft_order === [] || count($draft_order) != 5 || count
+      ($draft_order) != 6): ?>
       <div class="col-12" style="text-align: center;">
-        <h1>Draft will begin on
-          <span
-            style="color: #c2fe0b">
-            <?php echo
-            $season_service->getSeasonDraftDay($season, true);
-            ?>
-          </span>
-        </h1>
-        <h2>Lottery will be drawn on
-          <span style="color: #59b41d;">
-            TBD
-          </span>
-        </h2>
+        <p style="font-size: 1.5rem;">
+          Draft is unavailable: Minimum number of drafters not met</p>
       </div>
     <?php endif; ?>
     <?php if ($draft_complete): ?>
