@@ -44,6 +44,7 @@ jobs:
             --exclude '.secrets*' \
             --exclude '.actrc' \
             --exclude 'vendor/' \
+            --exclude 'phpunit.xml' \
             -e "ssh -i ~/.ssh/deploy_key" \
             ./ ${{ secrets.DROPLET_USER }}@${{ secrets.DROPLET_HOST }}:/var/www/bko/
 
