@@ -99,7 +99,8 @@
 
       if (!$row) return null;
 
-      $user = new self($row['username'], $row['password'], $row['id']);
+      $user = new self($row['username'], $row['favorite_team'], $row['password'],
+        $row['id']);
       return $user;
     }
 

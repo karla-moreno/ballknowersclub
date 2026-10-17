@@ -24,9 +24,8 @@
     if (empty($errors)) {
       try {
         $password = $_POST['password'];
-        $user = new User($username);
+        $user = new User($username, (int)$favorite_team);
         $user->setPassword($password);
-        $user->setFavoriteTeam((int)$favorite_team);
         $user->save();
 
         Auth::login($username, $password);
