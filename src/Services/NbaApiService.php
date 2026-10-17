@@ -22,7 +22,7 @@
 
     public static function getBallDontLieApiTeams(): array {
       $BASE_URL = "https://api.balldontlie.io";
-      $API_KEY = $_ENV['API_KEY'];
+      $API_KEY = $_ENV['BALLDONTLIE_API_KEY'];
       $endpoint = "/nba/v1/teams";
 
       $options = [
