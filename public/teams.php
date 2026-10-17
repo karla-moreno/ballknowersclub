@@ -29,7 +29,7 @@
         <td>
           <img
             src="<?= getLogo($t['team_id']); ?>"
-            alt="<?= $t['name']; ?> logo"
+            alt="<?= htmlspecialchars($t['name']) ?> logo"
             height="60"/>
         </td>
       </tr>

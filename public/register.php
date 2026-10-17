@@ -16,6 +16,10 @@
     $username = trim($_POST['username'] ?? '');
     $password = $_POST['password'] ?? '';
     $favorite_team = $_POST['favorite_team'] ?? '';
+    if (!preg_match('/^[A-Za-z0-9_-]{3,20}$/', $username)) {
+      $errors[] = 'Username must be 3–20 letters, numbers, _ or -.';
+    }
+
 
     if (empty($password) || strlen($password) < 8) {
       $errors[] = 'Password must be at least 8 characters.';
@@ -82,6 +86,8 @@
       <label data-field>
         Username
         <input type="text" name="username" required
+               pattern="[A-Za-z0-9_-]{3,20}"
+               title="3–20 letters, numbers, _ or -"
                value="<?= htmlspecialchars($_POST['username'] ?? '') ?>">
       </label>
       <label data-field>

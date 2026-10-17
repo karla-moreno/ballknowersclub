@@ -54,7 +54,7 @@
           <article class="card col-6">
             <header>
               <h3>
-                <?= $username; ?>
+                <?= htmlspecialchars($username) ?>
 
                 <?= Auth::check() && $username === htmlspecialchars(Auth::user()['username']) ?
                   '<span style="opacity: 0.5;">(you)</span>' :
@@ -80,9 +80,9 @@
                     <td>
                       <div class="flex items-center">
                         <img src="<?= getLogo($pick['team_id']); ?>"
-                             alt="<?= $pick['team_name']; ?> logo"
+                             alt="<?= htmlspecialchars($pick['team_name']) ?> logo"
                              height="35"/>
-                        <span><?= $pick['team_name']; ?></span>
+                        <span><?= htmlspecialchars($pick['team_name']) ?></span>
                       </div>
                     </td>
                     <td>

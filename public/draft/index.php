@@ -48,7 +48,7 @@
   $last_pick = $DraftService::getLastDrafter($season->value);
 
   if (!$last_pick) {
-    $current_drafter = $draft_order !== [] ? htmlspecialchars($draft_order[0]) : null;
+    $current_drafter = $draft_order !== [] ? $draft_order[0] : null;
   } else {
     $last_pick_username = $last_pick['username'];
     $last_drafter_index = array_search($last_pick_username, $draft_order);
@@ -56,7 +56,7 @@
         $draft_order) + 1) % count($draft_order)] ?? $draft_order[0];
   }
 
-  $current_user = $user !== null ? htmlspecialchars($user['username']) : null;
+  $current_user = $user !== null ? $user['username'] : null;
 
   /* TODO:
   * - extract JS to TS, add vite?
@@ -88,8 +88,8 @@
           <ol id="draft-order">
             <?php foreach ($draft_order as $index => $drafter) {
               $drafter = htmlspecialchars($drafter); ?>
-              <li data-drafter="<?= $drafter; ?>">
-                <?= $drafter; ?>
+              <li data-drafter="<?= htmlspecialchars($drafter) ?>">
+                <?= htmlspecialchars($drafter) ?>
                 <?= !$draft_complete && $drafter === $current_drafter ?
                   "<span> ←</span>" :
                   ""; ?>
@@ -117,7 +117,7 @@
                     <?= in_array($team['team_id'], $picked_teams) ?
                       'disabled'
                       : '' ?>>
-                    <?= $team['name']; ?>
+                    <?= htmlspecialchars($team['name']) ?>
                   </option>
                 <?php } ?>
               </select>
@@ -152,7 +152,7 @@
               <?php if (!$draft_complete): ?>
                 <p id="waiting-for" style="opacity: 0.6;">
                   Waiting for
-                  <?= $current_drafter === $current_user ? 'you' : $current_drafter; ?>
+                  <?= htmlspecialchars($current_drafter === $current_user ? 'you' : $current_drafter ?? '') ?>
                   ...
                 </p>
               <?php endif; ?>

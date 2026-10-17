@@ -23,7 +23,7 @@ endif; ?>">
             <li>
               <code>
                 <strong>
-                  <?= $pick['username']; ?>
+                  <?= htmlspecialchars($pick['username']) ?>
                 </strong>
               </code>
               selects

@@ -66,15 +66,15 @@
                 }
                 ?>
                 <tr>
-                  <td><?= $group[0]['username']; ?></td>
+                  <td><?= htmlspecialchars($group[0]['username']) ?></td>
                   <td>
                     <div class="flex items-center">
                       <img
                         src="<?= getLogo($mvt['team_id']); ?>"
-                        alt="<?= $mvt['team_name']; ?> logo"
+                        alt="<?= htmlspecialchars($mvt['team_name']) ?> logo"
                         height="35"
                       />
-                      <span><?= $mvt['team_name']; ?></span>
+                      <span><?= htmlspecialchars($mvt['team_name']) ?></span>
                     </div>
                   </td>
                   <td><?= $skins; ?></td>

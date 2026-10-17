@@ -43,7 +43,7 @@
               <td>
                 <?php if ($standing['username'] && $standing['draft_pick_id']): ?>
                   <strong>
-                    <?= $standing['username']; ?>
+                    <?= htmlspecialchars($standing['username']) ?>
                   </strong>
                   with #<?= $standing['draft_pick_id']; ?>
                 <?php else: ?>

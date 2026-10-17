@@ -17,7 +17,7 @@
   $SeasonService = new SeasonService();
   $DraftConfigService = new DraftConfigService();
   if (Auth::user()) {
-    $current_username = htmlspecialchars(Auth::user()['username']);
+    $current_username = Auth::user()['username'];
   } else {
     $current_username = null;
   }
@@ -193,7 +193,7 @@
           <form method="POST" action="/draft/register.php">
             <input type="hidden" name="season" value="<?= $season->value; ?>">
             <input type="hidden" name="username"
-                   value="<?= $current_username; ?>">
+                   value="<?= htmlspecialchars($current_username) ?>">
             <button
               type="submit" <?= count($registered_drafters) === 6 ? 'disabled' : '' ?>>
               Register for draft
