@@ -9,17 +9,27 @@
   Auth::start();
   Auth::requireRole('admin', 'user');
 
-  $season = $_POST['season'];
-  $username = $_POST['username'];
+  $season = $_POST['season'] ?? null;
+  $username = Auth::user()['username'];
 
-  if (!$season || !$username) {
+  if (!$season) {
     http_response_code(400);
-    echo 'Season and username are required.';
+    echo 'Season is required.';
     exit;
   }
   $DraftConfigService = new DraftConfigService();
 
-  $DraftConfigService->updateDrafters($season, $username);
+  if (in_array($username, $DraftConfigService->getDrafters($season), true)) {
+    http_response_code(409);
+    echo 'Already registered.';
+    exit;
+  }
+
+  if (!$DraftConfigService->updateDrafters($season, $username)) {
+    http_response_code(409);
+    echo 'Registration is full.';
+    exit;
+  }
 
   header('Location: /');
   exit;

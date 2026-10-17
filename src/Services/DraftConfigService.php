@@ -13,6 +13,8 @@
   //  $dotenv->load();
 
   class DraftConfigService {
+    public const MAX_DRAFTERS = 6;
+
     public function __construct() {}
 
     private static function db(): PDO {
@@ -32,8 +34,10 @@
 			");
     }
 
+    /* don't update if return is false (if draft is full or user is already
+    registered) */
     public function updateDrafters(string $season, string $username):
-    void {
+    bool {
       self::createDraftConfigTable();
       $db = self::db();
       $db->prepare("
@@ -45,11 +49,17 @@
         UPDATE draft_config 
         SET drafters = json_insert(drafters, '$[#]', :username)
         WHERE season = :season
+          AND json_array_length(drafters) < :max_drafters
+          AND NOT EXISTS (
+            SELECT 1 FROM json_each(drafters) WHERE value = :username
+          )
       ");
-      $stmt->execute([
-        ':username' => $username,
-        ':season' => $season,
-      ]);
+      $stmt->bindValue(':username', $username);
+      $stmt->bindValue(':season', $season);
+      $stmt->bindValue(':max_drafters', self::MAX_DRAFTERS, PDO::PARAM_INT);
+      $stmt->execute();
+
+      return $stmt->rowCount() > 0;
     }
 
     public function getDrafters(string $season): array {
