@@ -5,6 +5,7 @@
   global $date;
 
   use App\Enums\Season;
+  use App\Services\DraftConfigService;
   use App\Services\SeasonService;
   use App\Helpers\BallKnower;
   use App\Database\Database;
@@ -14,10 +15,11 @@
   $db = Database::connection();
 
   $SeasonService = new SeasonService();
+  $DraftConfigService = new DraftConfigService();
   if (Auth::user()) {
     $current_username = htmlspecialchars(Auth::user()['username']);
   } else {
-    $current_username = 'guest';
+    $current_username = null;
   }
 
   try {
@@ -48,9 +50,9 @@
     $stat = false;
   }
 
-  $daysLeft = $SeasonService->getDaysUntilEnd($season, $date);
-  $daysLeftSeasonStart = $SeasonService->getDaysUntilStart($season, $date);
-  //  dump($daysLeft);
+  $days_left = $SeasonService->getDaysUntilEnd($season, $date);
+  $days_left_until_season_start = $SeasonService->getDaysUntilStart($season, $date);
+  $registered_drafters = $DraftConfigService->getDrafters($season->value);
 ?>
 <?php if ($stat): ?>
   <?php
@@ -112,12 +114,12 @@
 				</span>
           </header>
           <h2>
-            <?= ($daysLeft > 0) ? $daysLeft . ' days' : 'Season ended'; ?>
+            <?= ($days_left > 0) ? $days_left . ' days' : 'Season ended'; ?>
           </h2>
           <p class="text-light">
-            <?= $daysLeft > 0 ?
+            <?= $days_left > 0 ?
               'Until season ends' :
-              abs($daysLeft) . ' days ago';
+              abs($days_left) . ' days ago';
             ?>
           </p>
           <meter
@@ -133,7 +135,7 @@
 <?php else: ?>
   <section class="section">
     <div class="row">
-      <article class="card col-4" style="display: flex; flex-direction:
+      <article class="card col-6" style="display: flex; flex-direction:
       column;">
         <header class="hstack justify-between items-center">
           <h4>Draft has not begun</h4>
@@ -151,7 +153,7 @@
                   max="1"></progress>
       </article>
 
-      <article class="card col-4" style="display: flex; flex-direction:
+      <article class="card col-6" style="display: flex; flex-direction:
       column;">
         <header class="hstack justify-between items-center">
           <h4>Season begins</h4>
@@ -161,12 +163,12 @@
 				</span>
         </header>
         <h2>
-          <?= ($daysLeftSeasonStart > 0) ? $daysLeftSeasonStart . ' days' : 'Season underway'; ?>
+          <?= ($days_left_until_season_start > 0) ? $days_left_until_season_start . ' days' : 'Season underway'; ?>
         </h2>
         <p class="text-light">
-          <?= $daysLeft > 0 ?
+          <?= $days_left > 0 ?
             'Until season starts' :
-            abs($daysLeft) . ' days ago';
+            abs($days_left) . ' days ago';
           ?>
         </p>
         <meter
@@ -176,25 +178,51 @@
           min="0" max="1" low="0" high="1"
           optimum="1"></meter>
       </article>
-
-      <article class="card col-4">
-        <header class="hstack justify-between items-center">
-          <h4>Draft order</h4>
-          <span
-            class="badge outline">
-					TBD
-				</span>
-        </header>
-        <!--        <h2>-->
-        <!--          --><?php //= ($daysLeftSeasonStart > 0) ? $daysLeftSeasonStart . ' days' : 'Season underway'; ?>
-        <!--        </h2>-->
-        <ul class="text-light" style="margin-top: .5em; margin-bottom: 0;">
-          <?php for ($i = 1; $i <= 6; $i++): ?>
-            <li><?= str_repeat('.', $i); ?></li>
-          <?php endfor; ?>
-        </ul>
-      </article>
     </div>
   </section>
   <hr/>
+  <section class="section">
+    <div class="row">
+      <div class="card col-6">
+        <header>
+          <h4><?= 5 - count($registered_drafters); ?>-<?= 6 - count
+            ($registered_drafters); ?> drafters needed</h4>
+        </header>
+        <?php if ($current_username && !in_array($current_username,
+            $registered_drafters)): ?>
+          <form method="POST" action="/draft/register.php">
+            <input type="hidden" name="season" value="<?= $season->value; ?>">
+            <input type="hidden" name="username"
+                   value="<?= $current_username; ?>">
+            <button
+              type="submit" <?= count($registered_drafters) === 6 ? 'disabled' : '' ?>>
+              Register for draft
+            </button>
+          </form>
+        <?php endif; ?>
+        <p class="text-light" style="margin-top: 1em;">
+          Current drafters
+        </p>
+        <?php if (count($registered_drafters) === 0): ?>
+          <i>No drafters registered</i>
+        <?php else: ?>
+          <ul style="margin-top: 1em;">
+            <?php foreach ($registered_drafters as $drafter): ?>
+              <li><?= $drafter; ?></li>
+            <?php endforeach; ?>
+          </ul>
+        <?php endif; ?>
+      </div>
+      <article class="card col-6">
+        <header class="hstack justify-between items-center"
+                style="margin-bottom: 1em;">
+          <h4>Draft order</h4>
+          <!--          <span class="badge outline">-->
+          <!--            TBD-->
+          <!--          </span>-->
+        </header>
+        <?php include __DIR__ . '/lottery.php'; ?>
+      </article>
+    </div>
+  </section>
 <?php endif; ?>
