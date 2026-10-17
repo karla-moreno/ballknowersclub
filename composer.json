@@ -1,6 +1,7 @@
 {
   "name": "bko/bko",
   "type": "project",
+  "license": "proprietary",
   "version": "0.1.0",
   "require": {
     "php": ">=8.4",

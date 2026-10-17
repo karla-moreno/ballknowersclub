@@ -1,0 +1,70 @@
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: [ "PHP validation/tests" ]
+    types: [ completed ]
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push'
+    name: Deploy to Droplet
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Running 'Howdy world'
+        run: |
+          echo 'Howdy world'
+
+      - name: Prepare SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DROPLET_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H ${{ secrets.DROPLET_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy via rsync
+        run: |
+          rsync -azP --delete \
+            --exclude '.git/' \
+            --exclude 'tests/' \
+            --exclude '.github/' \
+            --exclude 'temp/' \
+            --exclude 'storage/' \
+            --exclude '.env' \
+            --exclude '.php-cs-fixer.cache' \
+            --exclude '.php-cs-fixer.dist.php' \
+            --exclude '.secrets*' \
+            --exclude '.actrc' \
+            --exclude 'vendor/' \
+            -e "ssh -i ~/.ssh/deploy_key" \
+            ./ ${{ secrets.DROPLET_USER }}@${{ secrets.DROPLET_HOST }}:/var/www/bko/
+
+      - name: Post-deploy commands
+        run: |
+          ssh -i ~/.ssh/deploy_key \
+            ${{ secrets.DROPLET_USER }}@${{ secrets.DROPLET_HOST }} << 'ENDSSH'
+
+            # Write .env from secret
+            echo '${{ secrets.ENV_FILE }}' > /var/www/bko/.env
+
+            # Ensure persistent directories exist
+            mkdir -p /var/www/bko/storage /var/www/bko/temp
+
+            # Install production dependencies on server
+            cd /var/www/bko && composer install --no-dev --optimize-autoloader --no-interaction
+
+            # Reload PHP-FPM to clear opcache
+            sudo systemctl reload php8.4-fpm
+          ENDSSH
+
+      - name: Cleanup SSH key
+        if: always()
+        run: rm -f ~/.ssh/deploy_key
