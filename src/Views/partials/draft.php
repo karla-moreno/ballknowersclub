@@ -9,42 +9,48 @@
   $picks = (new App\Services\DraftService)->getDraftPicks($season->value);
 ?>
 
-<section id="draft" class="section">
+<section id="draft" class="section" style="<?php if (count($picks) == 0):
+  echo 'opacity: 0.5;';
+endif; ?>">
   <div class="row">
     <div class="col-12">
       <h2 style="margin-bottom: 0;">Draft recap</h2>
     </div>
     <article class="card col-12">
-      <ol style="font-size: 18px;">
-        <?php foreach ($picks as $pick): ?>
-          <li>
-            <code>
-              <strong>
-                <?= $pick['username']; ?>
-              </strong>
-            </code>
-            selects
-            <div class="items-center" style="display: inline;">
-              <img style="margin-bottom: -4px"
-                   src="<?= getLogo($pick['team_id']); ?>"
-                   alt="<?= $pick['team_name']; ?> logo" height="20"/>
-              <span>
+      <?php if (count($picks) > 0): ?>
+        <ol style="font-size: 18px;">
+          <?php foreach ($picks as $pick): ?>
+            <li>
+              <code>
+                <strong>
+                  <?= $pick['username']; ?>
+                </strong>
+              </code>
+              selects
+              <div class="items-center" style="display: inline;">
+                <img style="margin-bottom: -4px"
+                     src="<?= getLogo($pick['team_id']); ?>"
+                     alt="<?= $pick['team_name']; ?> logo" height="20"/>
+                <span>
                 <code>
                   <strong>
                     <?= $pick['team_name']; ?>
                   </strong>
                 </code>
               </span>
-            </div>
-            and their <code
-              style="color: var(--<?= skinSelect($pick['skin_select']); ?>);">
-              <strong>
-                <?= $pick['skin_select']; ?>
-              </strong>
-            </code>
-          </li>
-        <?php endforeach; ?>
-      </ol>
+              </div>
+              and their <code
+                style="color: var(--<?= skinSelect($pick['skin_select']); ?>);">
+                <strong>
+                  <?= $pick['skin_select']; ?>
+                </strong>
+              </code>
+            </li>
+          <?php endforeach; ?>
+        </ol>
+      <?php else: ?>
+        <p>Draft has not begun yet</p>
+      <?php endif; ?>
     </article>
   </div>
 </section>
