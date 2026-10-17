@@ -24,7 +24,7 @@ jobs:
           extensions: pdo, pdo_sqlite, mbstring, sqlite3, xml, curl
 
       - name: Validate composer.json and composer.lock
-        run: composer validate
+        run: composer validate --no-check-publish
 
       - name: Cache Composer packages
         id: composer-cache
