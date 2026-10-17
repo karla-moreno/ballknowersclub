@@ -52,6 +52,7 @@
       return self::user() !== null;
     }
 
+    // TODO: read role from db so role changes apply without re-login
     public static function role(): ?string {
       return self::user()['role'] ?? null;
     }
